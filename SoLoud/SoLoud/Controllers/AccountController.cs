@@ -9,11 +9,12 @@ using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
 using SoLoud.Models;
+using Microsoft.AspNet.Identity.EntityFramework;
 
 namespace SoLoud.Controllers
 {
     [Authorize]
-    public class AccountController : Controller
+    public class AccountController : BaseController
     {
         private ApplicationSignInManager _signInManager;
         private ApplicationUserManager _userManager;
@@ -340,11 +341,8 @@ namespace SoLoud.Controllers
                 return RedirectToAction("Login");
             }
 
-            if (loginInfo.Email != null)
-                return await ExternalLoginConfirmation(new ExternalLoginConfirmationViewModel() { Email = loginInfo.Email }, returnUrl);
-
             // Sign in the user with this external login provider if the user already has a login
-            var result = await SignInManager.ExternalSignInAsync(loginInfo, isPersistent: false);
+            var result = await SignInManager.ExternalSignInAsync(loginInfo, isPersistent: true);
             switch (result)
             {
                 case SignInStatus.Success:
@@ -355,7 +353,11 @@ namespace SoLoud.Controllers
                     return RedirectToAction("SendCode", new { ReturnUrl = returnUrl, RememberMe = false });
                 case SignInStatus.Failure:
                 default:
-                    // If the user does not have an account, then prompt the user to create an account
+                    // If the user does not have an account. create on for him, if we know his email...
+                    if (loginInfo.Email != null)
+                        return await ExternalLoginConfirmation(new ExternalLoginConfirmationViewModel() { Email = loginInfo.Email }, returnUrl);
+
+                    //...or prompt the user to create an account if we dont know his email
                     ViewBag.ReturnUrl = returnUrl;
                     ViewBag.LoginProvider = loginInfo.Login.LoginProvider;
                     return View("ExternalLoginConfirmation", new ExternalLoginConfirmationViewModel { Email = loginInfo.Email });
@@ -388,6 +390,11 @@ namespace SoLoud.Controllers
                 if (user == null)
                 {
                     user = new ApplicationUser { UserName = model.Email, Email = model.Email, Hometown = model.Hometown };
+                    //var externalIdentity = await AuthenticationManager.GetExternalIdentityAsync(DefaultAuthenticationTypes.ExternalCookie);
+                    //foreach (var claim in externalIdentity.Claims)
+                    //    if (claim.Type == "FacebookAccessToken")
+                    //        user.Claims.Add(new IdentityUserClaim() { ClaimType = claim.Type, ClaimValue = claim.Value, UserId = user.Id });
+
                     result = await UserManager.CreateAsync(user);
                 }
                 if (result.Succeeded)

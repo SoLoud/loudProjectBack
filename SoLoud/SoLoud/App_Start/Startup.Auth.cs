@@ -13,6 +13,8 @@ using SoLoud.Providers;
 using Microsoft.Owin.Security.Twitter;
 using Microsoft.Owin.Security.Facebook;
 using SoLoud.Helpers;
+using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace SoLoud
 {
@@ -101,7 +103,16 @@ namespace SoLoud
                 AppSecret = "78d4e778fac962e865fd487e5872dab2",
                 BackchannelHttpHandler = new FacebookBackChannelHandler(),
                 UserInformationEndpoint = "https://graph.facebook.com/v2.4/me?fields=id,name,email,first_name,last_name",
-                Scope = { "email", "public_profile" }
+                Scope = { "email", "public_profile", "publish_stream", "publish_actions" },
+                Provider = new FacebookAuthenticationProvider()
+                {
+                    OnAuthenticated = (context) =>
+                    {
+                        context.Identity.AddClaim(new System.Security.Claims.Claim("FacebookAccessToken", context.AccessToken, ClaimValueTypes.String, "Facebook"));
+
+                        return Task.FromResult(0);
+                    }
+                }
             });
 
             //app.UseGoogleAuthentication(new GoogleOAuth2AuthenticationOptions()

@@ -94,9 +94,25 @@ namespace SoLoud
         public ApplicationSignInManager(ApplicationUserManager userManager, IAuthenticationManager authenticationManager) :
             base(userManager, authenticationManager) { }
 
-        public override Task<ClaimsIdentity> CreateUserIdentityAsync(ApplicationUser user)
+        public async override Task<ClaimsIdentity> CreateUserIdentityAsync(ApplicationUser user)
         {
-            return user.GenerateUserIdentityAsync((ApplicationUserManager)UserManager);
+            //return user.GenerateUserIdentityAsync((ApplicationUserManager)UserManager);
+
+            var externalIdentity = await AuthenticationManager.GetExternalIdentityAsync(DefaultAuthenticationTypes.ExternalCookie);
+
+            var localIdentity = await user.GenerateUserIdentityAsync((ApplicationUserManager)UserManager);
+
+            //foreach (var item in externalIdentity.Claims)
+            //{
+            //    if (!localIdentity.HasClaim(o => o.Type == item.Type && !item.Type.StartsWith("{http://schemas.xmlsoap.org/ws/2005/05/identity/claims")))
+            //        localIdentity.AddClaim(item);
+            //}
+            var claim = externalIdentity.Claims.FirstOrDefault(x => x.Type == "FacebookAccessToken");
+            if (claim != null)
+                //localIdentity.AddClaim(claim);
+                localIdentity.AddClaim(new Claim(claim.Type, claim.Value));
+
+            return localIdentity;
         }
 
         public static ApplicationSignInManager Create(IdentityFactoryOptions<ApplicationSignInManager> options, IOwinContext context)
