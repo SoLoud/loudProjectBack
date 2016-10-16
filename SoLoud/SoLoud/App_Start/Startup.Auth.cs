@@ -79,11 +79,19 @@ namespace SoLoud
             //app.UseMicrosoftAccountAuthentication(
             //    clientId: "",
             //    clientSecret: "");
-
-            app.UseTwitterAuthentication(new TwitterAuthenticationOptions
+            var a = new TwitterAuthenticationOptions
             {
                 ConsumerKey = "R8RxlH7tsQJD56fy0WTYNbUkd",
                 ConsumerSecret = "Srpbyv1vVtyiWZx4ireJAie5ptXAN7BoDycTWbyaMpy3rs5P87",
+                Provider = new Microsoft.Owin.Security.Twitter.TwitterAuthenticationProvider
+                {
+                    OnAuthenticated = (context) =>
+                    {
+                        context.Identity.AddClaim(new System.Security.Claims.Claim("urn:twitter:access_token", context.AccessToken));
+                        context.Identity.AddClaim(new System.Security.Claims.Claim("urn:twitter:access_secret", context.AccessTokenSecret));
+                        return Task.FromResult(0);
+                    }
+                },
                 BackchannelCertificateValidator = new Microsoft.Owin.Security.CertificateSubjectKeyIdentifierValidator(new[]
                 {
                     "A5EF0B11CEC04103A34A659048B21CE0572D7D47", // VeriSign Class 3 Secure Server CA - G2
@@ -95,15 +103,16 @@ namespace SoLoud
                     "5168FF90AF0207753CCCD9656462A212B859723B", // DigiCert SHA2 High Assurance Server C‎A 
                     "B13EC36903F8BF4701D498261A0802EF63642BC3" // DigiCert High Assurance EV Root CA
                 })
-            });
-
+            };
+            app.UseTwitterAuthentication(a);
+            
             app.UseFacebookAuthentication(new FacebookAuthenticationOptions()
             {
                 AppId = "1625319744433880",
                 AppSecret = "78d4e778fac962e865fd487e5872dab2",
                 BackchannelHttpHandler = new FacebookBackChannelHandler(),
                 UserInformationEndpoint = "https://graph.facebook.com/v2.4/me?fields=id,name,email,first_name,last_name",
-                Scope = { "email", "public_profile", "publish_stream", "publish_actions" },
+                Scope = { "email", "public_profile", "publish_actions" },
                 Provider = new FacebookAuthenticationProvider()
                 {
                     OnAuthenticated = (context) =>
