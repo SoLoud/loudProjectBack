@@ -6,6 +6,7 @@ using System.Security.Claims;
 using System.Web;
 using System.Web.Http;
 using System.Web.Mvc;
+using Microsoft.AspNet.Identity;
 
 namespace SoLoud.Controllers
 {
@@ -24,6 +25,14 @@ namespace SoLoud.Controllers
             get
             {
                 return AuthenticationManager.User;
+            }
+        }
+
+        internal string UserId
+        {
+            get
+            {
+                return User.Identity.GetUserId();
             }
         }
 
@@ -57,6 +66,14 @@ namespace SoLoud.Controllers
             get
             {
                 return AuthenticationManager.User;
+            }
+        }
+
+        internal string UserId
+        {
+            get
+            {
+                return User.Identity.GetUserId();
             }
         }
 

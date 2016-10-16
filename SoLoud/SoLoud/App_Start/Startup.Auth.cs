@@ -43,7 +43,7 @@ namespace SoLoud
         public void ConfigureAuth(IAppBuilder app)
         {
             // Configure the db context, user manager and signin manager to use a single instance per request
-            app.CreatePerOwinContext(ApplicationDbContext.Create);
+            app.CreatePerOwinContext(SoLoudContext.Create);
             app.CreatePerOwinContext<ApplicationUserManager>(ApplicationUserManager.Create);
             app.CreatePerOwinContext<ApplicationSignInManager>(ApplicationSignInManager.Create);
 
@@ -112,7 +112,7 @@ namespace SoLoud
                 AppSecret = "78d4e778fac962e865fd487e5872dab2",
                 BackchannelHttpHandler = new FacebookBackChannelHandler(),
                 UserInformationEndpoint = "https://graph.facebook.com/v2.4/me?fields=id,name,email,first_name,last_name",
-                Scope = { "email", "public_profile", "publish_actions" },
+                Scope = { "email", "public_profile", "publish_actions", "manage_pages", "publish_pages", "user_photos", "user_posts", "user_tagged_places" },
                 Provider = new FacebookAuthenticationProvider()
                 {
                     OnAuthenticated = (context) =>

@@ -17,6 +17,7 @@ namespace SoLoud.Controllers
     {
         public ActionResult Index()
         {
+            HttpContext.User.Identity.GetUserId();
             return View();
         }
     }
