@@ -252,3 +252,5 @@ D:\Projects\SoLoud\SoLoud\SoLoud\bin\System.Web.WebPages.xml
 D:\Projects\SoLoud\SoLoud\SoLoud\bin\System.Web.WebPages.Deployment.xml
 D:\Projects\SoLoud\SoLoud\SoLoud\bin\System.Web.WebPages.Razor.xml
 D:\Projects\SoLoud\SoLoud\SoLoud\obj\Debug\SoLoud.pdb
+D:\Projects\SoLoud\SoLoud\SoLoud\obj\Debug\SoLoud.Migrations.posts.resources
+D:\Projects\SoLoud\SoLoud\SoLoud\obj\Debug\SoLoud.csproj.GenerateResource.Cache
