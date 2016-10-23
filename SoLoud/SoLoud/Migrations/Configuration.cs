@@ -19,6 +19,16 @@ namespace SoLoud.Migrations
         protected override void Seed(SoLoudContext context)
         {
             base.Seed(context);
+
+            //Add Company Role
+            var CompanyRoleExists = context.Roles.Any(x => x.Name == "Company");
+            if (!CompanyRoleExists)
+                context.Roles.Add(new Microsoft.AspNet.Identity.EntityFramework.IdentityRole("Company"));
+
+            //Add User Role
+            var UserRoleExists = context.Roles.Any(x => x.Name == "User");
+            if (!UserRoleExists)
+                context.Roles.Add(new Microsoft.AspNet.Identity.EntityFramework.IdentityRole("User"));
         }
     }
 }

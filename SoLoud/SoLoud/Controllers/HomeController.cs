@@ -20,5 +20,10 @@ namespace SoLoud.Controllers
             HttpContext.User.Identity.GetUserId();
             return View();
         }
+
+        public ActionResult Test()
+        {
+            return View();
+        }
     }
 }

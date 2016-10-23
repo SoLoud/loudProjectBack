@@ -11,6 +11,7 @@ using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin;
 using Microsoft.Owin.Security;
 using SoLoud.Models;
+using SoLoud.Helpers;
 
 namespace SoLoud
 {
@@ -18,8 +19,8 @@ namespace SoLoud
     {
         public Task SendAsync(IdentityMessage message)
         {
-            // Plug in your email service here to send an email.
-            return Task.FromResult(0);
+            var ElasticEmail = new ElasticEmailHelper();
+            return ElasticEmail.Send(message);
         }
     }
 
@@ -102,15 +103,12 @@ namespace SoLoud
 
             var localIdentity = await user.GenerateUserIdentityAsync((ApplicationUserManager)UserManager);
 
-            //foreach (var item in externalIdentity.Claims)
-            //{
-            //    if (!localIdentity.HasClaim(o => o.Type == item.Type && !item.Type.StartsWith("{http://schemas.xmlsoap.org/ws/2005/05/identity/claims")))
-            //        localIdentity.AddClaim(item);
-            //}
-            var claim = externalIdentity.Claims.FirstOrDefault(x => x.Type == "FacebookAccessToken");
-            if (claim != null)
-                //localIdentity.AddClaim(claim);
-                localIdentity.AddClaim(new Claim(claim.Type, claim.Value));
+            if (externalIdentity != null && externalIdentity.Claims != null)
+            {
+                var claim = externalIdentity.Claims.FirstOrDefault(x => x.Type == "FacebookAccessToken");
+                if (claim != null)
+                    localIdentity.AddClaim(new Claim(claim.Type, claim.Value));
+            }
 
             return localIdentity;
         }

@@ -102,6 +102,10 @@
     <Reference Include="Owin">
       <HintPath>..\packages\Owin.1.0\lib\net40\Owin.dll</HintPath>
     </Reference>
+    <Reference Include="RestSharp, Version=105.2.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\RestSharp.105.2.3\lib\net45\RestSharp.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration" />
@@ -210,18 +214,25 @@
     <Compile Include="Areas\HelpPage\XmlDocumentationProvider.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\BaseControllers.cs" />
+    <Compile Include="Controllers\ContestsController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Controllers\MeController.cs" />
     <Compile Include="Controllers\PostController.cs" />
     <Compile Include="Controllers\TermsAndConditionsController.cs" />
+    <Compile Include="Filters\MustBeOfRole.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\ElasticEmailHelper.cs" />
     <Compile Include="Helpers\FacebookBackChannelHandler.cs" />
     <Compile Include="Migrations\201610161305465_posts.cs" />
     <Compile Include="Migrations\201610161305465_posts.Designer.cs">
       <DependentUpon>201610161305465_posts.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201610231911429_contests.cs" />
+    <Compile Include="Migrations\201610231911429_contests.Designer.cs">
+      <DependentUpon>201610231911429_contests.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
@@ -229,6 +240,7 @@
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
     <Compile Include="Models\MeViewModels.cs" />
+    <Compile Include="Models\Contest.cs" />
     <Compile Include="Models\Posts.cs" />
     <Compile Include="Models\SoLoudContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -240,9 +252,15 @@
   <ItemGroup>
     <Content Include="Areas\HelpPage\HelpPage.css" />
     <Content Include="Areas\HelpPage\Views\_ViewStart.cshtml" />
-    <Content Include="Content\bootstrap.css" />
-    <Content Include="Content\bootstrap.min.css" />
-    <Content Include="Content\Site.css" />
+    <Content Include="Content\css\bootstrap.css" />
+    <Content Include="Content\css\bootstrap.min.css" />
+    <Content Include="Content\fonts\fontawesome-webfont.svg" />
+    <Content Include="Content\css\Site.css" />
+    <Content Include="Content\css\OpenSans.css" />
+    <Content Include="Content\css\font-awesome.min.css" />
+    <Content Include="Content\css\w3-theme-blue-grey.css" />
+    <Content Include="Content\css\w3.css" />
+    <Content Include="Content\images\irma_small.png" />
     <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
@@ -267,6 +285,11 @@
     <Content Include="Areas\HelpPage\Views\Help\DisplayTemplates\CollectionModelDescription.cshtml" />
     <Content Include="Areas\HelpPage\Views\Help\DisplayTemplates\ApiGroup.cshtml" />
     <Content Include="Areas\HelpPage\Views\Help\Api.cshtml" />
+    <Content Include="Content\fonts\fontawesome-webfont.eot" />
+    <Content Include="Content\fonts\fontawesome-webfont.ttf" />
+    <Content Include="Content\fonts\fontawesome-webfont.woff" />
+    <Content Include="Content\fonts\fontawesome-webfont.woff2" />
+    <Content Include="Content\fonts\FontAwesome.otf" />
     <None Include="Properties\PublishProfiles\soloud - FTP.pubxml" />
     <None Include="Properties\PublishProfiles\soloud - Web Deploy.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
@@ -327,6 +350,12 @@
     <Content Include="Scripts\jquery-1.10.2.min.map" />
     <Content Include="Views\TermsAndConditions\TermsAndConditions.cshtml" />
     <Content Include="Views\TermsAndConditions\PrivacyPolicy.cshtml" />
+    <Content Include="Views\Contests\Create.cshtml" />
+    <Content Include="Views\Contests\Delete.cshtml" />
+    <Content Include="Views\Contests\Details.cshtml" />
+    <Content Include="Views\Contests\Edit.cshtml" />
+    <Content Include="Views\Contests\Index.cshtml" />
+    <Content Include="Views\Home\Test.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -341,6 +370,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Migrations\201610161305465_posts.resx">
       <DependentUpon>201610161305465_posts.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201610231911429_contests.resx">
+      <DependentUpon>201610231911429_contests.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

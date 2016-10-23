@@ -49,6 +49,7 @@ namespace SoLoud.Models
 
         #region DataSets
         public virtual DbSet<Post> Posts { get; set; }
+        public virtual DbSet<Contest> Contests { get; set; }
 
         #endregion
 
