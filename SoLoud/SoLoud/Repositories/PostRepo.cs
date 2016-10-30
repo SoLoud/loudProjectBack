@@ -23,7 +23,7 @@ namespace SoLoud.Repositories
             {
                 Id = Guid.NewGuid().ToString(),
                 IsVerified = false,
-                text = text,
+                Text = text,
                 UserId = UserId,
                 SocialMedium = SocialMedia.Facebook
             };

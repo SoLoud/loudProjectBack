@@ -7,13 +7,13 @@ namespace SoLoud.Migrations
     using System.Resources;
     
     [GeneratedCode("EntityFramework.Migrations", "6.1.3-40302")]
-    public sealed partial class contests : IMigrationMetadata
+    public sealed partial class changeCategoriesToEnum : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(contests));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(changeCategoriesToEnum));
         
         string IMigrationMetadata.Id
         {
-            get { return "201610231911429_contests"; }
+            get { return "201610301350291_changeCategoriesToEnum"; }
         }
         
         string IMigrationMetadata.Source

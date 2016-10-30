@@ -3,20 +3,29 @@
 {
     using (Html.BeginForm("LogOff", "Account", new { area = "" }, FormMethod.Post, new { id = "logoutForm", @class = "navbar-right" }))
     {
-    @Html.AntiForgeryToken()
+        @Html.AntiForgeryToken()
 
-    <ul class="nav navbar-nav navbar-right">
-        <li>
-            @Html.ActionLink("Hello " + User.Identity.GetUserName() + "!", "Index", "Manage", routeValues: new { area = "" }, htmlAttributes: new { title = "Manage" })
-        </li>
-        <li><a href="javascript:sessionStorage.removeItem('accessToken');$('#logoutForm').submit();">Log off</a></li>
-    </ul>
+        if (!Model)  //is Small Screen?
+        {
+            <li class="w3-hide-small w3-right"><a class="w3-padding-large w3-hover-white white" href="javascript:sessionStorage.removeItem('accessToken');$('#logoutForm').submit();">Log off</a></li>
+            <li class="w3-hide-small w3-right">@Html.ActionLink("Hello " + User.Identity.GetUserName() + "!", "Index", "Manage", routeValues: new { area = "" }, htmlAttributes: new { title = "Manage", @class = "w3-padding-large w3-hover-white white" })</li>
+        }
+        else
+        {
+            <li><a class = "w3-padding-large white" href="javascript:sessionStorage.removeItem('accessToken');$('#logoutForm').submit();">Log off</a></li>
+        }
     }
 }
 else
 {
-    <ul class="nav navbar-nav navbar-right">
-        <li>@Html.ActionLink("Register", "Register", "Account", routeValues: new { area = "" }, htmlAttributes: new { id = "registerLink" })</li>
-        <li>@Html.ActionLink("Log in", "Login", "Account", routeValues: new { area = "" }, htmlAttributes: new { id = "loginLink" })</li>
-    </ul>
+    if (!Model)  //is Small Screen?
+    {
+        <li class="w3-hide-small w3-right">@Html.ActionLink("Register", "Register", "Account", routeValues: new { area = "" }, htmlAttributes: new { id = "registerLink", @class = "w3-padding-large w3-hover-white white" })</li>
+        <li class="w3-hide-small w3-right">@Html.ActionLink("Log in", "Login", "Account", routeValues: new { area = "" }, htmlAttributes: new { id = "loginLink", @class = "w3-padding-large w3-hover-white white" })</li>
+    }
+    else
+    {
+        <li>@Html.ActionLink("Register", "Register", "Account", routeValues: new { area = "" }, htmlAttributes: new { id = "registerLink", @class = "w3-padding-large white" })</li>
+        <li>@Html.ActionLink("Log in", "Login", "Account", routeValues: new { area = "" }, htmlAttributes: new { id = "loginLink", @class = "w3-padding-large white" })</li>
+    }
 }

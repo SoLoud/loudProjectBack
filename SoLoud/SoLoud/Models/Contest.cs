@@ -8,22 +8,31 @@ using System.Web;
 
 namespace SoLoud.Models
 {
-    public class Contest
+    public enum Categoies
+    {
+        Charity,
+        Cosmetics,
+        [Display(Name = "Home Decoration")]
+        HomeDecoration,
+        Entertainment,
+        Fashion,
+        Fitness,
+        Food,
+        Pets,
+        Travel
+    }
+
+    public class Contest : ContentItem
     {
         public Contest()
         {
             this.CreatedAt = DateTimeOffset.Now;
         }
 
-        [Key]
-        public string Id { get; set; }
-        [Required]
-        public string UserId { get; set; }
-        public virtual ApplicationUser User { get; set; }
-        public List<string> Hashtags { get; set; }
+        public string Title { get; set; }
         public string Description { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
         public DateTimeOffset EndingAt { get; set; }
-        public string Category { get; set; }
+        public Categoies Category { get; set; }
     }
 }

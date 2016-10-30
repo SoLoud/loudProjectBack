@@ -6,6 +6,7 @@ using System.Web.Http;
 using Microsoft.Owin.Security.OAuth;
 using Newtonsoft.Json.Serialization;
 using System.Data.Entity.Migrations;
+using System.Web.Http.Cors;
 
 namespace SoLoud
 {
@@ -17,6 +18,9 @@ namespace SoLoud
             // Configure Web API to use only bearer token authentication.
             config.SuppressDefaultHostAuthentication();
             config.Filters.Add(new HostAuthenticationFilter(OAuthDefaults.AuthenticationType));
+
+            //Enable Cors
+            config.EnableCors(new EnableCorsAttribute("*", "*", "*"));
 
             // Use camel case for JSON data.
             config.Formatters.JsonFormatter.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();

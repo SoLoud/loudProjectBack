@@ -3,24 +3,45 @@ namespace SoLoud.Migrations
     using System;
     using System.Data.Entity.Migrations;
     
-    public partial class posts : DbMigration
+    public partial class Initial : DbMigration
     {
         public override void Up()
         {
             CreateTable(
-                "dbo.Post",
+                "dbo.ContentItem",
                 c => new
                     {
                         Id = c.String(nullable: false, maxLength: 128),
                         UserId = c.String(nullable: false, maxLength: 128),
-                        text = c.String(),
-                        IsVerified = c.Boolean(nullable: false),
+                        Description = c.String(),
+                        CreatedAt = c.DateTimeOffset(precision: 7),
+                        EndingAt = c.DateTimeOffset(precision: 7),
+                        Category = c.String(),
+                        Text = c.String(),
+                        IsVerified = c.Boolean(),
                         VerifiedAt = c.DateTimeOffset(precision: 7),
-                        SocialMedium = c.Int(nullable: false),
+                        SocialMedium = c.Int(),
+                        Discriminator = c.String(nullable: false, maxLength: 128),
+                        ApplicationUser_Id = c.String(maxLength: 128),
                     })
                 .PrimaryKey(t => t.Id)
+                .ForeignKey("dbo.AspNetUsers", t => t.ApplicationUser_Id)
                 .ForeignKey("dbo.AspNetUsers", t => t.UserId, cascadeDelete: true)
-                .Index(t => t.UserId);
+                .Index(t => t.UserId)
+                .Index(t => t.ApplicationUser_Id);
+            
+            CreateTable(
+                "dbo.HashTag",
+                c => new
+                    {
+                        Id = c.String(nullable: false, maxLength: 128),
+                        ItemId = c.String(nullable: false, maxLength: 128),
+                        Name = c.String(),
+                        IsRequired = c.Boolean(nullable: false),
+                    })
+                .PrimaryKey(t => t.Id)
+                .ForeignKey("dbo.ContentItem", t => t.ItemId, cascadeDelete: true)
+                .Index(t => t.ItemId);
             
             CreateTable(
                 "dbo.AspNetUsers",
@@ -96,23 +117,28 @@ namespace SoLoud.Migrations
         public override void Down()
         {
             DropForeignKey("dbo.AspNetUserRoles", "RoleId", "dbo.AspNetRoles");
+            DropForeignKey("dbo.ContentItem", "UserId", "dbo.AspNetUsers");
             DropForeignKey("dbo.AspNetUserRoles", "UserId", "dbo.AspNetUsers");
-            DropForeignKey("dbo.Post", "UserId", "dbo.AspNetUsers");
+            DropForeignKey("dbo.ContentItem", "ApplicationUser_Id", "dbo.AspNetUsers");
             DropForeignKey("dbo.AspNetUserLogins", "UserId", "dbo.AspNetUsers");
             DropForeignKey("dbo.AspNetUserClaims", "UserId", "dbo.AspNetUsers");
+            DropForeignKey("dbo.HashTag", "ItemId", "dbo.ContentItem");
             DropIndex("dbo.AspNetRoles", "RoleNameIndex");
             DropIndex("dbo.AspNetUserRoles", new[] { "RoleId" });
             DropIndex("dbo.AspNetUserRoles", new[] { "UserId" });
             DropIndex("dbo.AspNetUserLogins", new[] { "UserId" });
             DropIndex("dbo.AspNetUserClaims", new[] { "UserId" });
             DropIndex("dbo.AspNetUsers", "UserNameIndex");
-            DropIndex("dbo.Post", new[] { "UserId" });
+            DropIndex("dbo.HashTag", new[] { "ItemId" });
+            DropIndex("dbo.ContentItem", new[] { "ApplicationUser_Id" });
+            DropIndex("dbo.ContentItem", new[] { "UserId" });
             DropTable("dbo.AspNetRoles");
             DropTable("dbo.AspNetUserRoles");
             DropTable("dbo.AspNetUserLogins");
             DropTable("dbo.AspNetUserClaims");
             DropTable("dbo.AspNetUsers");
-            DropTable("dbo.Post");
+            DropTable("dbo.HashTag");
+            DropTable("dbo.ContentItem");
         }
     }
 }

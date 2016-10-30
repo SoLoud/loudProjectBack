@@ -1,75 +1,138 @@
 ﻿@model SoLoud.Models.Contest
 
 @{
+    ViewBag.Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@{
     ViewBag.Title = "Create";
 }
 
-<h2>Create</h2>
+<div class="w3-container w3-card-2 w3-white w3-round w3-margin">
+    @using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
 
-@using (Html.BeginForm()) 
-{
-    @Html.AntiForgeryToken()
-    
-    <div class="form-horizontal">
-        <h4>Contest</h4>
-        <hr />
-        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-        <div class="form-group">
-            @Html.LabelFor(model => model.Id, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.Id, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.Id, "", new { @class = "text-danger" })
+        <div class="form-horizontal">
+            <h4>Contest</h4>
+            <hr />
+            @*TODO: Placeholders on all text fields, +9 kainourgio pedio gia reward*@
+            @*TODO: Prepei na doume pws tha anevazoume fwtografia. Xreiazete fwtografia ipodigma stous diagwnismou*@
+            <div class="form-group row">
+                <div class="col-md-5 col-md-offset-1">
+                    @Html.LabelFor(model => model.Title, htmlAttributes: new { @class = "control-label" })
+                    @Html.EditorFor(model => model.Title, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.Title, "", new { @class = "text-danger" })
+                </div>
+
+                <div class="col-md-5">
+                    @Html.LabelFor(model => model.EndingAt, htmlAttributes: new { @class = "control-label" })
+                    @Html.EditorFor(model => model.EndingAt, new { htmlAttributes = new { @class = "form-control date", data_provide = "datepicker" } })
+                    @Html.ValidationMessageFor(model => model.EndingAt, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-md-10 col-md-offset-1">
+                    @Html.LabelFor(model => model.Description, htmlAttributes: new { @class = "control-label" })
+                    @Html.TextAreaFor(model => model.Description, new { @class = "form-control", rows = "8" })
+                    @Html.ValidationMessageFor(model => model.Description, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-md-10 col-md-offset-1">
+                    @Html.LabelFor(model => model.Category, htmlAttributes: new { @class = "control-label" })
+                    @Html.EnumDropDownListFor(model => model.Category, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.Category, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-md-10 col-md-offset-1">
+                    @Html.LabelFor(model => model.HashTags, htmlAttributes: new { @class = "control-label" })
+                    @Html.EditorFor(model => model.HashTags, new { htmlAttributes = new { @class = "form-control" } })
+                    <div class="row">
+                        <div class="col-md-8">
+                            <input id="tagName" type="text" class="form-control" placeholder="#hashtag" />
+                        </div>
+
+                        <div class="col-md-3">
+                            Required:<input id="isRequired" type="checkbox" class="checkbox checkbox-inline bootstrapSwitch bootstrap-switch-small" />
+                        </div>
+                        <div class="col-md-1">
+                            <div id="newTag" class="w3-btn w3-green w3-btn-block w3-opacity">Add</div>
+                        </div>
+                    </div>
+                    <br />
+                    <p id="hashTagArea">
+                        @*<span class="w3-tag w3-large w3-theme-d4">#yolo  <i class="fa fa-times" onclick="$(this).parent().remove();"></i></span>
+                        <span class="w3-tag w3-large w3-theme-l1">asedrfgbds  <i class="fa fa-times" onclick="$(this).parent().remove();"></i></span>
+                        <span class="w3-tag w3-large w3-theme-l1">asedrfgbds  <i class="fa fa-times" onclick="$(this).parent().remove();"></i></span>
+                        @if (Model != null && Model.HashTags != null)
+                        {
+                            foreach (var tag in Model.HashTags)
+                            {
+                                if (tag.IsRequired)
+                                {
+                                    <span class="w3-tag w3-large w3-theme-d4">#@tag.Name  <i class="fa fa-times" onclick="$(this).parent().remove();"></i></span>
+
+                                }
+                                else
+                                {
+                                    <span class="w3-tag w3-large w3-theme-l1">#@tag.Name  <i class="fa fa-times" onclick="$(this).parent().remove();"></i></span>
+                                }
+                            }
+                        }*@
+                    </p>
+
+                </div>
+            </div>
+
+
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    <input type="submit" value="Create" class="btn btn-default" />
+                </div>
             </div>
         </div>
-
-        <div class="form-group">
-            @Html.LabelFor(model => model.UserId, "UserId", htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.DropDownList("UserId", null, htmlAttributes: new { @class = "form-control" })
-                @Html.ValidationMessageFor(model => model.UserId, "", new { @class = "text-danger" })
-            </div>
-        </div>
-
-        <div class="form-group">
-            @Html.LabelFor(model => model.Description, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.Description, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.Description, "", new { @class = "text-danger" })
-            </div>
-        </div>
-
-        <div class="form-group">
-            @Html.LabelFor(model => model.CreatedAt, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.CreatedAt, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.CreatedAt, "", new { @class = "text-danger" })
-            </div>
-        </div>
-
-        <div class="form-group">
-            @Html.LabelFor(model => model.EndingAt, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.EndingAt, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.EndingAt, "", new { @class = "text-danger" })
-            </div>
-        </div>
-
-        <div class="form-group">
-            @Html.LabelFor(model => model.Category, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.Category, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.Category, "", new { @class = "text-danger" })
-            </div>
-        </div>
-
-        <div class="form-group">
-            <div class="col-md-offset-2 col-md-10">
-                <input type="submit" value="Create" class="btn btn-default" />
-            </div>
-        </div>
+    }
+    <div>
+        @Html.ActionLink("Back to List", "Index")
     </div>
-}
-
-<div>
-    @Html.ActionLink("Back to List", "Index")
 </div>
+<script>
+    var TagCounter = 0;
+
+    var removeTag = function (element) {
+        $(this).parent().remove();
+        TagCounter--;
+    }
+
+    $('#newTag').click(function () {
+        var isReuired = $('#isRequired').is(':checked');
+
+        var themeClass = (isReuired) ? "w3-theme-d4" : "w3-theme-l1";
+        var tagName = $('#tagName').val();
+
+        //Create and add hashtag
+        var HashTagDescriptor = '<span class="w3-tag w3-large ' + themeClass + '">#' + tagName + '  <i class="fa fa-times" onclick="$(this).parent().remove();"></i></span>';
+        var HashTag = $(HashTagDescriptor);
+        
+        $('#hashTagArea').append(HashTag);
+
+        //create and add hidden field. This is used to give value to attributes during post
+        var HiddenElNameDescriptor = '<input type="hidden" value="' + tagName + '" name="HashTags[].Name" />'
+        var HiddenElName = $(HiddenElNameDescriptor);
+
+        var HiddenElIsRequiredDescriptor = '<input type="hidden" value="' + isReuired + '" name="HashTags[].IsRequired" />'
+        var HiddenElIsRequired = $(HiddenElIsRequiredDescriptor);
+
+        $('#hashTagArea').append(HiddenElName);
+        $('#hashTagArea').append(HiddenElIsRequired);
+
+        //empty input field
+        $('#tagName').val("");
+
+        TagCounter++;
+    });
+</script>

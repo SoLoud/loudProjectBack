@@ -11,14 +11,9 @@ namespace SoLoud.Models
     {
         Facebook, Twitter, GooglePlus, Instagram
     }
-    public class Post
+    public class Post : ContentItem
     {
-        [Key]
-        public string Id { get; set; }
-        [Required]
-        public string UserId { get; set; }
-        public virtual ApplicationUser User { get; set; }
-        public string text { get; set; }
+        public string Text { get; set; }
         public bool IsVerified { get; set; }
         public DateTimeOffset? VerifiedAt { get; set; }
         [Required]

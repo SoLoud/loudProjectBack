@@ -35,11 +35,19 @@ namespace SoLoud
                 "~/Scripts/modernizr-*"));
 
             bundles.Add(new ScriptBundle("~/bundles/bootstrap").Include(
+                "~/Scripts/bootstrap-datepicker.js",
+                "~/Scripts/bootstrap-switch.js",
                 "~/Scripts/bootstrap.js",
                 "~/Scripts/respond.js"));
 
             bundles.Add(new StyleBundle("~/Content/css").Include(
+                 "~/Content/css/w3.css",
+                 "~/Content/css/w3-theme-blue-grey.css",
+                 "~/Content/css/OpenSans.css",
+                 "~/Content/css/font-awesome.min.css",
                  "~/Content/css/bootstrap.css",
+                 "~/Content/css/bootstrap-datepicker.css",
+                 "~/Content/css/bootstrap-switch.css",
                  "~/Content/css/Site.css"));
         }
     }

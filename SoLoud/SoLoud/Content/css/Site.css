@@ -1,6 +1,5 @@
 ﻿body {
     padding-top: 50px;
-    padding-bottom: 20px;
 }
 
 /* Set padding to keep content from hitting the edges */
@@ -17,11 +16,11 @@
 }
 
 /* Set width on the form input elements since they're 100% wide by default */
-input,
+/*input,
 select,
 textarea {
     max-width: 280px;
-}
+}*/
 
 /* Set padding to display errors that occur during databinding */
 .padding-error {
@@ -33,4 +32,14 @@ textarea {
         float: none;
         padding: 10px 15px;
     }
+}
+
+.w3-content{max-width:none;margin:auto}
+
+.form-control {
+    border-radius: 0px;
+}
+
+.white{
+    color: white;
 }

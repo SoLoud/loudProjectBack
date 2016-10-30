@@ -12,6 +12,7 @@
     <ProjectView>ShowAllFiles</ProjectView>
     <WebStackScaffolding_DbContextTypeFullName>SoLoud.Models.SoLoudContext</WebStackScaffolding_DbContextTypeFullName>
     <WebStackScaffolding_IsViewGenerationSelected>True</WebStackScaffolding_IsViewGenerationSelected>
+    <UseIISExpress>true</UseIISExpress>
   </PropertyGroup>
   <ProjectExtensions>
     <VisualStudio>
