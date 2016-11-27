@@ -15,17 +15,16 @@ using Newtonsoft.Json;
 namespace SoLoud.Controllers
 {
     [Authorize]
-    [RoutePrefix("Post")]
-    public class PostController : BaseApiController
+    public class PostController : BaseController
     {
-        [HttpPost]
+        [HttpGet]
         [Route("")]
-        async public void Post()
+        public void Post()
         {
             var fb = new FacebookClient(FacebookAccessToken);
 
             dynamic par = new System.Dynamic.ExpandoObject();
-            par.message = "SoLoud test post NEW!";
+            par.message = "SoLoud test post NEW2!";
             par.access_token = FacebookAccessToken;
 
             dynamic res = fb.Post("me/feed", par);
@@ -39,7 +38,7 @@ namespace SoLoud.Controllers
 
         [HttpGet]
         [Route("Likes")]
-        async public void GetLikes()
+        public void GetLikes()
         {
             var fb = new FacebookClient(FacebookAccessToken);
 

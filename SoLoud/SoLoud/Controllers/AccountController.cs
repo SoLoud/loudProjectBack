@@ -10,6 +10,12 @@ using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
 using SoLoud.Models;
 using Microsoft.AspNet.Identity.EntityFramework;
+using Facebook;
+using System.IdentityModel.Tokens;
+using System.IdentityModel.Protocols.WSTrust;
+using System.Text;
+using System.ServiceModel.Security.Tokens;
+using SoLoud.Helpers;
 
 namespace SoLoud.Controllers
 {
@@ -322,7 +328,8 @@ namespace SoLoud.Controllers
         public ActionResult ExternalLogin(string provider, string returnUrl)
         {
             // Request a redirect to the external login provider
-            return new ChallengeResult(provider, Url.Action("ExternalLoginCallback", "Account", new { ReturnUrl = returnUrl }));
+            var a = new ChallengeResult(provider, Url.Action("ExternalLoginCallback", "Account", new { ReturnUrl = returnUrl }));
+            return a;
         }
 
         //
@@ -393,6 +400,34 @@ namespace SoLoud.Controllers
                     return View("ExternalLoginConfirmation", new ExternalLoginConfirmationViewModel { Email = loginInfo.Email });
             }
         }
+
+        [HttpPost]
+        [AllowAnonymous]
+        public async Task<string> LoginUsingFacebookToken(string facebookToken)
+        {
+            var fb = new FacebookClient(facebookToken);
+
+            Helpers.Facebook.Me me = fb.Get<Helpers.Facebook.Me>("me", new { fields = "id, name, email, gender, birthday, picture.type(large)" });
+
+            var result = IdentityResult.Success;
+            var user = UserManager.FindByEmail(me.email);
+            if (user == null)
+            {
+                var context = new SoLoudContext();
+                var UserRole = context.Roles.FirstOrDefault(x => x.Name == "User");
+
+                user = new ApplicationUser { UserName = me.email, Email = me.email };
+                user.Roles.Add(new IdentityUserRole() { RoleId = UserRole.Id, UserId = user.Id });
+
+                result = await UserManager.CreateAsync(user);
+            }
+            var tokenads = TokenHandler.Create(user.Email, facebookToken);
+
+            TokenHandler.Validate(tokenads);
+
+            return tokenads;
+        }
+
 
         //
         // POST: /Account/ExternalLoginConfirmation

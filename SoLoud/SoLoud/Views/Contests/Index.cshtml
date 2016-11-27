@@ -18,29 +18,47 @@
 }
 else
 {
-    foreach (var item in Model)
+    <div class="w3-row-padding">
+        <div class="w3-col m12">
+            <div class="w3-card-2 w3-round w3-white">
+                <div class="w3-container w3-padding w3-center">
+                    <p class="w3-opacity">To create a new Contest click <a href="Contests/Create">Here</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    foreach (var item in Model.OrderByDescending(x => x.EndingAt))
     {
         <div class="w3-container w3-card-2 w3-white w3-round w3-margin">
             <br>
             <span class="w3-right w3-opacity">@item.CreatedAt.DayOfWeek.ToString() , @item.CreatedAt.Day.ToString()/@item.CreatedAt.Month/@item.CreatedAt.Year</span>
-            <h4>Contest</h4><br>
-            <hr class="w3-clear">
-            <p>@item.Description</p>
-            <div class="w3-container">
-                <p>
-                    @if (item.HashTags == null)
+            <h4>@item.Title</h4><br>
+            <dl class="dl-horizontal">
+                @if (item.Photos.Any(f => f.FileType == SoLoud.Models.FileType.Photo))
+                {
+                    <dd>
+                        <img style="max-width: 200px" src="~/File?id=@item.Photos.First(f => f.FileType == SoLoud.Models.FileType.Photo).FileId" alt="Photo" />
+                    </dd>
+                }
+            </dl>
+                <hr class="w3-clear">
+                <p>@item.Description</p>
+                <div class="w3-container">
+                    <p>
+                        @if (item.HashTags == null)
                     {
-                    <p>isEMPTY</p>
-                    }
-                    else
-                    {
-                        foreach (var tag in item.HashTags)
-                        {
-                            <span class="w3-tag w3-small w3-theme-d2">@tag.Name</span>
+                        <p>isEMPTY</p>
                         }
-                    }
-                    </p>
-                </div>
-            </div>
+                        else
+                        {
+                            foreach (var tag in item.HashTags)
+                            {
+                                <span class="w3-tag w3-small w3-theme-d2">#@tag.Name</span>
+                            }
+                        }
+                        </p>
+                    </div>
+</div>
     }
 }

@@ -112,7 +112,7 @@ namespace SoLoud
                 AppSecret = "78d4e778fac962e865fd487e5872dab2",
                 BackchannelHttpHandler = new FacebookBackChannelHandler(),
                 UserInformationEndpoint = "https://graph.facebook.com/v2.4/me?fields=id,name,email,first_name,last_name",
-                Scope = { "email", "public_profile", "publish_actions", "manage_pages", "publish_pages", "user_photos", "user_posts", "user_tagged_places" },
+                Scope = { "email", "public_profile", "publish_actions", "user_posts" },
                 Provider = new FacebookAuthenticationProvider()
                 {
                     OnAuthenticated = (context) =>

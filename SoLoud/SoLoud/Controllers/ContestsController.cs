@@ -8,9 +8,11 @@ using System.Web;
 using System.Web.Mvc;
 using SoLoud.Models;
 using SoLoud.Controllers;
+using System.Drawing;
 
 namespace SoLoud.Controllers
 {
+    [Authorize]
     public class ContestsController : BaseController
     {
         private SoLoudContext db = new SoLoudContext();
@@ -18,7 +20,7 @@ namespace SoLoud.Controllers
         // GET: Contests
         public ActionResult Index()
         {
-            var contests = db.Contests.Include(c => c.User);
+            var contests = db.Contests/*.Include(c => c.User)*/;
             return View(contests.ToList());
         }
 
@@ -42,7 +44,29 @@ namespace SoLoud.Controllers
         {
             ViewBag.UserId = new SelectList(db.Users, "Id", "Hometown");
             var endDate = DateTimeOffset.Now.AddDays(14);
-            return View(new Contest() { EndingAt = endDate });
+            return View(new ContestSentItem() { EndingAt = endDate });
+        }
+
+        public class ContestSentItem
+        {
+            public string Title { get; set; }
+            public string Description { get; set; }
+            public DateTimeOffset EndingAt { get; set; }
+            public Categoies Category { get; set; }
+            public string HashTags { get; set; }
+            public HttpPostedFileBase ProductImage { get; set; }
+        }
+
+        private string getImage()
+        {
+            var bitmapImage = new Bitmap(500, 300);
+            var g = Graphics.FromImage(bitmapImage);
+
+            string filepath = Server.MapPath("~/Images/" + Guid.NewGuid().ToString() + ".jpg");
+
+            bitmapImage.Save(filepath, System.Drawing.Imaging.ImageFormat.Jpeg);
+
+            return filepath;
         }
 
         // POST: Contests/Create
@@ -50,20 +74,79 @@ namespace SoLoud.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "Description,CreatedAt,EndingAt,Category,HashTags,Title")] Contest contest)
+        public ActionResult Create(ContestSentItem contest)
         {
-            contest.Id = Guid.NewGuid().ToString();
-            contest.UserId = UserId;
+            //if (!Request.Content.IsMimeMultipartContent())
+            //{
+            //    this.Request.CreateResponse(HttpStatusCode.UnsupportedMediaType);
+            //}
+
+
+            //Stream req = Request.RequestContext.Content.ReadAsStreamAsync().Result;
+            //HttpMultipartParser parser = new HttpMultipartParser(req, "file");
+
+            //if (parser.Success)
+            //{
+            //    MemoryStream ms = new MemoryStream(parser.FileContents);
+            //    HSSFWorkbook templateWorkbook = new HSSFWorkbook(ms);
+
+            //    HSSFSheet sheet = (HSSFSheet)templateWorkbook.GetSheetAt(0);
+
+            //}
+
+            //var asd = new byte[];
+            //Request.InputStream.Read()
+
+            var a = Request;
+            var newContest = new Contest();
+            newContest.Id = Guid.NewGuid().ToString();
+            newContest.UserId = UserId;
+            newContest.Title = contest.Title;
+            newContest.Description = contest.Description;
+            newContest.EndingAt = contest.EndingAt;
+            newContest.Category = contest.Category;
+
+            //var imageurl = getImage();
+            //newContest.ProductImageUrl = imageurl;
+
+            if (contest.ProductImage != null && contest.ProductImage.ContentLength > 0)
+            {
+                var newPhoto = new File()
+                {
+                    FileName = System.IO.Path.GetFileName(contest.ProductImage.FileName),
+                    FileType = FileType.Photo,
+                    ContentType = contest.ProductImage.ContentType
+                };
+                using (var reader = new System.IO.BinaryReader(contest.ProductImage.InputStream))
+                {
+                    newPhoto.Content = reader.ReadBytes(contest.ProductImage.ContentLength);
+                }
+                newContest.Photos = new List<File>() {
+                    newPhoto
+                };
+            }
+
+            var HashTags = new List<HashTag>();
+            foreach (var Tag in contest.HashTags.Split(','))
+            {
+                HashTags.Add(new HashTag()
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Name = Tag.Trim(),
+                    IsRequired = true,
+                    ItemId = newContest.Id
+                });
+            }
 
             if (ModelState.IsValid)
             {
-                db.HashTags.AddRange(contest.HashTags);
-                db.Contests.Add(contest);
+                db.HashTags.AddRange(HashTags);
+                db.Contests.Add(newContest);
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
 
-            ViewBag.UserId = new SelectList(db.Users, "Id", "Hometown", contest.UserId);
+            ViewBag.UserId = new SelectList(db.Users, "Id", "Hometown", newContest.UserId);
             return View(contest);
         }
 
@@ -141,6 +224,7 @@ namespace SoLoud.ApiControllers
     [RoutePrefix("api/Contests")]
     public class ContestsController : BaseApiController
     {
+ 
         [HttpGet]
         public List<Contest> Get()
         {

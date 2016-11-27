@@ -1,4 +1,4 @@
-﻿@model SoLoud.Models.Contest
+﻿@model SoLoud.Controllers.ContestsController.ContestSentItem
 
 @{
     ViewBag.Layout = "~/Views/Shared/_Layout.cshtml";
@@ -8,7 +8,7 @@
 }
 
 <div class="w3-container w3-card-2 w3-white w3-round w3-margin">
-    @using (Html.BeginForm())
+    @using (Html.BeginForm("Create", "Contests", null, FormMethod.Post, new { enctype = "multipart/form-data" }))
     {
         @Html.AntiForgeryToken()
 
@@ -51,7 +51,8 @@
                 <div class="col-md-10 col-md-offset-1">
                     @Html.LabelFor(model => model.HashTags, htmlAttributes: new { @class = "control-label" })
                     @Html.EditorFor(model => model.HashTags, new { htmlAttributes = new { @class = "form-control" } })
-                    <div class="row">
+                    @Html.ValidationMessageFor(model => model.HashTags, "", new { @class = "text-danger" })
+                    @*<div class="row">
                         <div class="col-md-8">
                             <input id="tagName" type="text" class="form-control" placeholder="#hashtag" />
                         </div>
@@ -65,33 +66,23 @@
                     </div>
                     <br />
                     <p id="hashTagArea">
-                        @*<span class="w3-tag w3-large w3-theme-d4">#yolo  <i class="fa fa-times" onclick="$(this).parent().remove();"></i></span>
-                        <span class="w3-tag w3-large w3-theme-l1">asedrfgbds  <i class="fa fa-times" onclick="$(this).parent().remove();"></i></span>
-                        <span class="w3-tag w3-large w3-theme-l1">asedrfgbds  <i class="fa fa-times" onclick="$(this).parent().remove();"></i></span>
-                        @if (Model != null && Model.HashTags != null)
-                        {
-                            foreach (var tag in Model.HashTags)
-                            {
-                                if (tag.IsRequired)
-                                {
-                                    <span class="w3-tag w3-large w3-theme-d4">#@tag.Name  <i class="fa fa-times" onclick="$(this).parent().remove();"></i></span>
-
-                                }
-                                else
-                                {
-                                    <span class="w3-tag w3-large w3-theme-l1">#@tag.Name  <i class="fa fa-times" onclick="$(this).parent().remove();"></i></span>
-                                }
-                            }
-                        }*@
-                    </p>
+                    </p>*@
 
                 </div>
             </div>
 
+            <div class="form-group">
+                <div class="col-md-offset-1 w3-right-align col-md-10">
+                    <input type="file" value="asd" name="ProductImage" id="ProductImagee" />
+                    @*@Html.LabelFor(model => model.ProductImage, htmlAttributes: new { @class = "control-label" })
+                    @Html.EditorFor(model => model.ProductImage, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.ProductImage, "", new { @class = "text-danger" })*@
+                </div>
+            </div>
 
             <div class="form-group">
-                <div class="col-md-offset-2 col-md-10">
-                    <input type="submit" value="Create" class="btn btn-default" />
+                <div class="col-md-offset-1 w3-right-align col-md-10">
+                    <input type="submit" value="Create" class="w3-btn w3-theme" placeholder="ex: ThisAwesome, FoivosJustBerped" />
                 </div>
             </div>
         </div>
@@ -104,9 +95,16 @@
     var TagCounter = 0;
 
     var removeTag = function (element) {
-        $(this).parent().remove();
-        TagCounter--;
+        var tagElement = $(element).parent();
+
+        tagId = tagElement.attr('id');
+
+        delete HashTags[tagId];
+
+        tagElement.remove();
     }
+
+    var HashTags = {};
 
     $('#newTag').click(function () {
         var isReuired = $('#isRequired').is(':checked');
@@ -115,24 +113,28 @@
         var tagName = $('#tagName').val();
 
         //Create and add hashtag
-        var HashTagDescriptor = '<span class="w3-tag w3-large ' + themeClass + '">#' + tagName + '  <i class="fa fa-times" onclick="$(this).parent().remove();"></i></span>';
+        var HashTagDescriptor = '<span id="' + TagCounter + '" class="w3-tag w3-large ' + themeClass + '">#' + tagName + '  <i class="fa fa-times" onclick="removeTag(this);"></i></span>';
         var HashTag = $(HashTagDescriptor);
+
+        HashTags[TagCounter] = { isRequired: isReuired, name: tagName };
         
         $('#hashTagArea').append(HashTag);
-
-        //create and add hidden field. This is used to give value to attributes during post
-        var HiddenElNameDescriptor = '<input type="hidden" value="' + tagName + '" name="HashTags[].Name" />'
-        var HiddenElName = $(HiddenElNameDescriptor);
-
-        var HiddenElIsRequiredDescriptor = '<input type="hidden" value="' + isReuired + '" name="HashTags[].IsRequired" />'
-        var HiddenElIsRequired = $(HiddenElIsRequiredDescriptor);
-
-        $('#hashTagArea').append(HiddenElName);
-        $('#hashTagArea').append(HiddenElIsRequired);
 
         //empty input field
         $('#tagName').val("");
 
         TagCounter++;
     });
+
+    $('#SubmitButton').click(function () {
+
+    });
+
+    var SendContestsToAPI = function (Contests) {
+        $.ajax({
+            method: "POST",
+            url: "",
+            data: Contests
+        });
+    };
 </script>

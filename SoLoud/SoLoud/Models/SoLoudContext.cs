@@ -51,6 +51,7 @@ namespace SoLoud.Models
         public virtual DbSet<Post> Posts { get; set; }
         public virtual DbSet<Contest> Contests { get; set; }
         public virtual DbSet<HashTag> HashTags { get; set; }
+        public virtual DbSet<File> Files { get; set; }
 
         #endregion
 

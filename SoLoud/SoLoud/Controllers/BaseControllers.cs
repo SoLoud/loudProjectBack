@@ -7,9 +7,11 @@ using System.Web;
 using System.Web.Http;
 using System.Web.Mvc;
 using Microsoft.AspNet.Identity;
+using SoLoud.Filters;
 
 namespace SoLoud.Controllers
 {
+    [JsonOnly]
     public class BaseController : Controller
     {
         private IAuthenticationManager AuthenticationManager
@@ -20,7 +22,7 @@ namespace SoLoud.Controllers
             }
         }
 
-        private ClaimsPrincipal User
+        private ClaimsPrincipal UserClaim
         {
             get
             {
@@ -32,7 +34,7 @@ namespace SoLoud.Controllers
         {
             get
             {
-                return User.Identity.GetUserId();
+                return UserClaim.Identity.GetUserId();
             }
         }
 
@@ -40,7 +42,7 @@ namespace SoLoud.Controllers
         {
             get
             {
-                var claim = (User.Identity as ClaimsIdentity).FindFirst("FacebookAccessToken");
+                var claim = (UserClaim.Identity as ClaimsIdentity).FindFirst("FacebookAccessToken");
 
                 string accessToken = null;
                 if (claim != null)
@@ -51,6 +53,7 @@ namespace SoLoud.Controllers
         }
     }
 
+    [JsonOnly]
     public class BaseApiController : ApiController
     {
         private IAuthenticationManager AuthenticationManager
@@ -61,7 +64,7 @@ namespace SoLoud.Controllers
             }
         }
 
-        private ClaimsPrincipal User
+        private ClaimsPrincipal UserClaim
         {
             get
             {
@@ -73,7 +76,7 @@ namespace SoLoud.Controllers
         {
             get
             {
-                return User.Identity.GetUserId();
+                return UserClaim.Identity.GetUserId();
             }
         }
 
@@ -81,7 +84,7 @@ namespace SoLoud.Controllers
         {
             get
             {
-                var claim = (User.Identity as ClaimsIdentity).FindFirst("FacebookAccessToken");
+                var claim = (UserClaim.Identity as ClaimsIdentity).FindFirst("FacebookAccessToken");
 
                 string accessToken = null;
                 if (claim != null)

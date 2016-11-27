@@ -17,5 +17,7 @@ namespace SoLoud.Models
         public virtual ApplicationUser User { get; set; }
         [JsonIgnore]
         public virtual ICollection<HashTag> HashTags { get; set; }
+
+        public virtual ICollection<File> Photos { get; set; }
     }
 }
