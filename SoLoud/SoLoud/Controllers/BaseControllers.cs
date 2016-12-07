@@ -52,7 +52,10 @@ namespace SoLoud.Controllers
             }
         }
     }
+}
 
+namespace SoLoud.ApiControllers
+{
     [JsonOnly]
     public class BaseApiController : ApiController
     {

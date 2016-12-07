@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Data.Entity;
 using System.Linq;
 using System.Net;
@@ -221,16 +220,17 @@ namespace SoLoud.Controllers
 }
 namespace SoLoud.ApiControllers
 {
+    [Authorize]
     [RoutePrefix("api/Contests")]
-    public class ContestsController : BaseApiController
+    public class ContestsApiController : BaseApiController
     {
  
         [HttpGet]
         public List<Contest> Get()
         {
             var context = new SoLoudContext();
-
-            return context.Contests.ToList();
+            
+            return context.Contests.Include("HashTags").ToList();
         }
 
         [HttpGet]

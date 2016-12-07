@@ -61,7 +61,7 @@ namespace SoLoud.Helpers
             var tokenHandler = new JwtSecurityTokenHandler();
 
             var asdas = tokenHandler.ReadToken(token) as JwtSecurityToken;
-            var jti = asdas.Claims.First(claim => claim.Type == ClaimTypes.Email).Value;
+            var jti = asdas.Claims.First(claim => claim.Type == "email").Value;
 
             var validationParameters = new TokenValidationParameters()
             {

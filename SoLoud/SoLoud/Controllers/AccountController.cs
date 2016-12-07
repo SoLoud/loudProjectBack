@@ -401,31 +401,14 @@ namespace SoLoud.Controllers
             }
         }
 
-        [HttpPost]
-        [AllowAnonymous]
-        public async Task<string> LoginUsingFacebookToken(string facebookToken)
+        //[AllowAnonymous]
+        internal ApplicationUser GetUserUsingFacebookToken(string facebookToken)
         {
             var fb = new FacebookClient(facebookToken);
 
             Helpers.Facebook.Me me = fb.Get<Helpers.Facebook.Me>("me", new { fields = "id, name, email, gender, birthday, picture.type(large)" });
 
-            var result = IdentityResult.Success;
-            var user = UserManager.FindByEmail(me.email);
-            if (user == null)
-            {
-                var context = new SoLoudContext();
-                var UserRole = context.Roles.FirstOrDefault(x => x.Name == "User");
-
-                user = new ApplicationUser { UserName = me.email, Email = me.email };
-                user.Roles.Add(new IdentityUserRole() { RoleId = UserRole.Id, UserId = user.Id });
-
-                result = await UserManager.CreateAsync(user);
-            }
-            var tokenads = TokenHandler.Create(user.Email, facebookToken);
-
-            TokenHandler.Validate(tokenads);
-
-            return tokenads;
+            return UserManager.FindByEmail(me.email);
         }
 
 
