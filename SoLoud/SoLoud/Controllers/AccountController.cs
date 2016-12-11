@@ -10,7 +10,6 @@ using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
 using SoLoud.Models;
 using Microsoft.AspNet.Identity.EntityFramework;
-using Facebook;
 using System.IdentityModel.Tokens;
 using System.IdentityModel.Protocols.WSTrust;
 using System.Text;
@@ -401,18 +400,6 @@ namespace SoLoud.Controllers
             }
         }
 
-        //[AllowAnonymous]
-        internal ApplicationUser GetUserUsingFacebookToken(string facebookToken)
-        {
-            var fb = new FacebookClient(facebookToken);
-
-            Helpers.Facebook.Me me = fb.Get<Helpers.Facebook.Me>("me", new { fields = "id, name, email, gender, birthday, picture.type(large)" });
-
-            return UserManager.FindByEmail(me.email);
-        }
-
-
-        //
         // POST: /Account/ExternalLoginConfirmation
         [HttpPost]
         [AllowAnonymous]

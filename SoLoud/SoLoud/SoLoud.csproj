@@ -245,6 +245,8 @@
     <Compile Include="Helpers\EnumHandler.cs" />
     <Compile Include="Helpers\FacebookBackChannelHandler.cs" />
     <Compile Include="Helpers\FacebookHelpers.cs" />
+    <Compile Include="Helpers\HttpMultipartParser.cs" />
+    <Compile Include="Helpers\Misc.cs" />
     <Compile Include="Helpers\TokenHandler.cs" />
     <Compile Include="Migrations\201610301100540_Initial.cs" />
     <Compile Include="Migrations\201610301100540_Initial.Designer.cs">

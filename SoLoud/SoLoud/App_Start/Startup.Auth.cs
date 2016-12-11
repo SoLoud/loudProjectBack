@@ -73,7 +73,8 @@ namespace SoLoud
             app.UseTwoFactorRememberBrowserCookie(DefaultAuthenticationTypes.TwoFactorRememberBrowserCookie);
 
             // Token Generation
-            app.UseOAuthAuthorizationServer(OAuthOptions);
+            app.UseOAuthBearerTokens(OAuthOptions);
+            //app.UseOAuthAuthorizationServer(OAuthOptions);
 
             // Uncomment the following lines to enable logging in with third party login providers
             //app.UseMicrosoftAccountAuthentication(

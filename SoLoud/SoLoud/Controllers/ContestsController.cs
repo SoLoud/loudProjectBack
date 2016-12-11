@@ -1,17 +1,17 @@
-﻿using System;
+﻿using SoLoud.Models;
+using System;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.Drawing;
 using System.Linq;
 using System.Net;
 using System.Web;
+using System.Web.Http;
 using System.Web.Mvc;
-using SoLoud.Models;
-using SoLoud.Controllers;
-using System.Drawing;
 
 namespace SoLoud.Controllers
 {
-    [Authorize]
+    [System.Web.Http.Authorize]
     public class ContestsController : BaseController
     {
         private SoLoudContext db = new SoLoudContext();
@@ -71,7 +71,7 @@ namespace SoLoud.Controllers
         // POST: Contests/Create
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
+        [System.Web.Http.HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create(ContestSentItem contest)
         {
@@ -168,7 +168,7 @@ namespace SoLoud.Controllers
         // POST: Contests/Edit/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
+        [System.Web.Http.HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Edit([Bind(Include = "Id,UserId,Description,CreatedAt,EndingAt,Category")] Contest contest)
         {
@@ -198,7 +198,7 @@ namespace SoLoud.Controllers
         }
 
         // POST: Contests/Delete/5
-        [HttpPost, ActionName("Delete")]
+        [System.Web.Http.HttpPost, System.Web.Http.ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(string id)
         {
@@ -220,21 +220,22 @@ namespace SoLoud.Controllers
 }
 namespace SoLoud.ApiControllers
 {
-    [Authorize]
-    [RoutePrefix("api/Contests")]
+    [System.Web.Http.Authorize]
+    [System.Web.Http.RoutePrefix("api/Contests")]
     public class ContestsApiController : BaseApiController
     {
- 
-        [HttpGet]
+
+        [System.Web.Http.HttpGet]
+        [System.Web.Http.Route("")]
         public List<Contest> Get()
         {
             var context = new SoLoudContext();
-            
+
             return context.Contests.Include("HashTags").ToList();
         }
 
-        [HttpGet]
-        [Route("{id}")]
+        [System.Web.Http.HttpGet]
+        [System.Web.Http.Route("{id}")]
         public Contest Get(string id)
         {
             var context = new SoLoudContext();
