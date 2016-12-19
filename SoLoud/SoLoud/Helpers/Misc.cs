@@ -21,12 +21,35 @@
 /// 
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace HttpUtils
 {
     public static class Misc
     {
+        public static List<byte[]> Split(byte[] searchWithin, byte[] delimiter)
+        {
+            var returnValue = new List<byte[]>();
+            var startIndex = 0;
+            var endIndex = IndexOf(searchWithin, delimiter, startIndex);
+
+            while(endIndex > -1)
+            {
+                var length = endIndex - startIndex;
+
+                var tmp = new byte[length];
+
+                Buffer.BlockCopy(searchWithin, startIndex, tmp, 0, length);
+                returnValue.Add(tmp);
+
+                startIndex = endIndex + delimiter.Length;
+                endIndex = IndexOf(searchWithin, delimiter, startIndex);
+            };
+
+            return returnValue;
+        }
+
         public static int IndexOf(byte[] searchWithin, byte[] serachFor, int startIndex)
         {
             int index = 0;

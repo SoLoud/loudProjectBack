@@ -1,172 +1,156 @@
-﻿/// HttpUtils.HttpMultipartParser
-/// 
-/// Copyright (c) 2012 Lorenzo Polidori
-/// 
-/// This software is distributed under the terms of the MIT License reproduced below.
-/// 
-/// Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
-/// and associated documentation files (the "Software"), to deal in the Software without restriction, 
-/// including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, 
-/// and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, 
-/// subject to the following conditions:
-/// 
-/// The above copyright notice and this permission notice shall be included in all copies or substantial 
-/// portions of the Software.
-/// 
-/// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT 
-/// NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-/// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, 
-/// WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
-/// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-/// 
-
-using System;
+﻿using System;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
 
-/// <summary>
-/// HttpMultipartParser
-/// Reads a multipart http data stream and returns the file name, content type and file content.
-/// Also, it returns any additional form parameters in a Dictionary.
-/// </summary>
 namespace HttpUtils
 {
     public class HttpMultipartParser
     {
-        public string yolo { get; set; }
-        public HttpMultipartParser(Stream stream, string filePartName)
+        public HttpMultipartParser(Stream stream)
+            : this(stream, Encoding.UTF8)
         {
-            FilePartName = filePartName;
-            this.Parse(stream, Encoding.UTF8);
         }
 
-        public HttpMultipartParser(Stream stream, Encoding encoding, string filePartName)
+        public HttpMultipartParser(Stream stream, Encoding encoding)
         {
-            FilePartName = filePartName;
-            this.Parse(stream, encoding);
+            this.Encoding = encoding;
+            this.Parse(stream);
         }
 
-        private void Parse(Stream stream, Encoding encoding)
+        private void Parse(Stream stream)
         {
             this.Success = false;
 
-            // Read the stream into a byte array
-            byte[] data = Misc.ToByteArray(stream);
+            foreach (var section in getSections(stream))
+            {
+                if (!isValidMultipartSection(section.AsString)) continue;
 
-            // Copy to a string for header parsing
-            string content = encoding.GetString(data);
+                if (isFile(section.AsString))
+                {
+                    var File = new SoLoud.Models.File();
+                    var success = tryGetFile(section, out File);
+
+                    if (success)
+                        Files.Add(File);
+                }
+                else //is Parameter
+                {
+                    string parameterName, parameterValue;
+                    var success = tryGetParameter(section, out parameterName, out parameterValue);
+
+                    if (success)
+                        Parameters.Add(parameterName, parameterValue);
+                }
+            }
+
+            if (Files.Count != 0 || Parameters.Count != 0)
+                this.Success = true;
+        }
+
+        private bool isValidMultipartSection(string section)
+        {
+            return section.Contains("Content-Disposition");
+        }
+
+        private bool isFile(string section)
+        {
+            Regex re = new Regex(@"(?<=Content\-Type:)(.*?)(?=\r\n\r\n)");
+            Match contentTypeMatch = re.Match(section);
+
+            return contentTypeMatch.Success;
+        }
+
+        private class Section
+        {
+            public string AsString { get; set; }
+            public byte[] AsBytes { get; set; }
+        }
+
+        private List<Section> getSections(Stream stream)
+        {
+            var sections = new List<Section>();
+
+            var data = Misc.ToByteArray(stream);
+
+            string content = Encoding.GetString(data);
 
             // The first line should contain the delimiter
             int delimiterEndIndex = content.IndexOf("\r\n");
 
-            if (delimiterEndIndex > -1)
+            if (delimiterEndIndex == -1) return sections;
+
+            delimiter = content.Substring(0, delimiterEndIndex);
+
+            foreach(var sectionData in Misc.Split(data, Encoding.GetBytes(delimiter)))
             {
-                string delimiter = content.Substring(0, content.IndexOf("\r\n"));
-
-                string[] sections = content.Split(new string[] { delimiter }, StringSplitOptions.RemoveEmptyEntries);
-
-                foreach (string s in sections)
+                var section = new Section()
                 {
-                    if (s.Contains("Content-Disposition"))
-                    {
-                        // If we find "Content-Disposition", this is a valid multi-part section
-                        // Now, look for the "name" parameter
-                        Match nameMatch = new Regex(@"(?<=name\=\"")(.*?)(?=\"")").Match(s);
-                        string name = nameMatch.Value.Trim().ToLower();
+                    AsBytes = sectionData,
+                    AsString = Encoding.GetString(sectionData)
+                };
 
-                        if (name == FilePartName)
-                        {
-                            yolo = s;
-                            // Look for Content-Type
-                            Regex re = new Regex(@"(?<=Content\-Type:)(.*?)(?=\r\n\r\n)");
-                            Match contentTypeMatch = re.Match(content);
-
-                            // Look for filename
-                            re = new Regex(@"(?<=filename\=\"")(.*?)(?=\"")");
-                            Match filenameMatch = re.Match(content);
-
-                            // Did we find the required values?
-                            if (contentTypeMatch.Success && filenameMatch.Success)
-                            {
-                                // Set properties
-                                this.ContentType = contentTypeMatch.Value.Trim();
-                                this.Filename = filenameMatch.Value.Trim();
-
-                                // Get the start & end indexes of the file contents
-                                int startIndex = contentTypeMatch.Index + contentTypeMatch.Length + "\r\n\r\n".Length;
-
-                                byte[] delimiterBytes = encoding.GetBytes("\r\n" + delimiter);
-                                int endIndex = Misc.IndexOf(data, delimiterBytes, startIndex);
-
-                                int contentLength = endIndex - startIndex;
-
-                                // Extract the file contents from the byte array
-                                byte[] fileData = new byte[contentLength];
-
-                                Buffer.BlockCopy(data, startIndex, fileData, 0, contentLength);
-
-                                this.FileContents = fileData;
-                            }
-                        }
-                        else if (!string.IsNullOrWhiteSpace(name))
-                        {
-                            // Get the start & end indexes of the file contents
-                            int startIndex = nameMatch.Index + nameMatch.Length + "\r\n\r\n".Length;
-                            Parameters.Add(name, s.Substring(startIndex).TrimEnd(new char[] { '\r', '\n' }).Trim());
-                        }
-                    }
-                }
-
-                // If some data has been successfully received, set success to true
-                if (FileContents != null || Parameters.Count != 0)
-                    this.Success = true;
+                sections.Add(section);
             }
+
+            return sections;
+        }
+
+        private bool tryGetParameter(Section Section, out string Name, out string Value)
+        {
+            Name = ""; Value = "";
+
+            Regex re = new Regex(@"(?<=name=\"")(?<Name>.*?)(?>\""\r\n\r\n)(?<Value>.*?)(?=\r\n)");
+            Match parameterMatch = re.Match(Section.AsString);
+
+            if (!parameterMatch.Success) return false;
+
+            Name = parameterMatch.Groups["Name"].Value;
+            Value = parameterMatch.Groups["Value"].Value;
+
+            return true;
+        }
+
+        private bool tryGetFile(Section Section, out SoLoud.Models.File File)
+        {
+            File = new SoLoud.Models.File();
+
+            Regex re = new Regex(@"(?<=filename=\"")" +                          //Starts With: filename=\"
+                                 @"(?<FileName>.*?)" +                           //**Capturing group** 
+                                 @"(?>\""\r\nContent\-Type:[\s]+)" +
+                                 @"(?<ContentType>.*?)" +                        //**Capturing group** 
+                                 @"(?>\r\n\r\n)" +
+                                 @"(?<Contents>.*)"                              //**Capturing group** 
+                                , RegexOptions.Singleline);
+
+            Match FileMatch = re.Match(Section.AsString);
+
+            if (!FileMatch.Success) return false;
+
+            var FileName = FileMatch.Groups["FileName"].Value;
+            var ContentType = FileMatch.Groups["ContentType"].Value;
+
+            var ContentStartIndex = FileMatch.Groups["Contents"].Index;
+            var ContentLength = Section.AsBytes.Length - ContentStartIndex;
+
+            File.Content = new byte[ContentLength];
+            Array.Copy(Section.AsBytes, ContentStartIndex, File.Content, 0, ContentLength);
+
+            File.ContentType = ContentType;
+            File.FileName = FileName;
+
+            return true;
         }
 
         public IDictionary<string, string> Parameters = new Dictionary<string, string>();
 
-        public string FilePartName
-        {
-            get;
-            private set;
-        }
+        public bool Success { get; private set; }
 
-        public bool Success
-        {
-            get;
-            private set;
-        }
+        public List<SoLoud.Models.File> Files = new List<SoLoud.Models.File>();
 
-        public string Title
-        {
-            get;
-            private set;
-        }
+        private string delimiter { get; set; }
 
-        public int UserId
-        {
-            get;
-            private set;
-        }
-
-        public string ContentType
-        {
-            get;
-            private set;
-        }
-
-        public string Filename
-        {
-            get;
-            private set;
-        }
-
-        public byte[] FileContents
-        {
-            get;
-            private set;
-        }
+        public Encoding Encoding { get; private set; }
     }
 }

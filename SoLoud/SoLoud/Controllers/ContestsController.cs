@@ -11,7 +11,8 @@ using System.Web.Mvc;
 
 namespace SoLoud.Controllers
 {
-    [System.Web.Http.Authorize]
+    [System.Web.Mvc.Authorize]
+    [System.Web.Mvc.RoutePrefix("Contests")]
     public class ContestsController : BaseController
     {
         private SoLoudContext db = new SoLoudContext();
@@ -39,6 +40,8 @@ namespace SoLoud.Controllers
         }
 
         // GET: Contests/Create
+        [System.Web.Mvc.HttpGet]
+        [System.Web.Mvc.Route("Create")]
         public ActionResult Create()
         {
             ViewBag.UserId = new SelectList(db.Users, "Id", "Hometown");
@@ -71,7 +74,8 @@ namespace SoLoud.Controllers
         // POST: Contests/Create
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [System.Web.Http.HttpPost]
+        [System.Web.Mvc.Route("Create")]
+        [System.Web.Mvc.HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create(ContestSentItem contest)
         {
