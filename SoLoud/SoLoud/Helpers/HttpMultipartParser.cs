@@ -112,7 +112,6 @@ namespace HttpUtils
             return true;
         }
 
-        //TODO: this work very good BUT: if the file name is NOT in english it will end up not parsing the Contents properly. This happens because the index on the Contents RegEx Group is NOT correct
         private bool tryGetFile(Section Section, out SoLoud.Models.File File)
         {
             File = new SoLoud.Models.File();
@@ -132,7 +131,13 @@ namespace HttpUtils
             var FileName = FileMatch.Groups["FileName"].Value;
             var ContentType = FileMatch.Groups["ContentType"].Value;
 
-            var ContentStartIndex = FileMatch.Groups["Contents"].Index;
+            //This is the old way to get the content length. Which is wrong. This assumes that Every character in the encoding we are using is 1 byte. 
+            //That is not true in some encodings especialy for foreign languagues like greek. So the ContentStartIndex is not the string index for the last capturing group.
+            //var ContentStartIndex = FileMatch.Groups["Contents"].Index;
+
+            var stringBeforeTheContents = Section.AsString.Substring(0, FileMatch.Groups["Contents"].Index);
+            var ContentStartIndex = Encoding.GetByteCount(stringBeforeTheContents);
+
             var ContentLength = Section.AsBytes.Length - ContentStartIndex;
 
             File.Content = new byte[ContentLength];

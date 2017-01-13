@@ -10,7 +10,7 @@ namespace SoLoud.Models
 {
     public class SoLoudContext : IdentityDbContext<ApplicationUser>
     {
-        private string schema = "SoLoud";
+        //private string schema = "SoLoud";
         private static string defaultConnectionString = ConfigurationManager.ConnectionStrings["DefaultConnection"].ToString();
         public SoLoudContext()
             : base(defaultConnectionString, throwIfV1Schema: false)
