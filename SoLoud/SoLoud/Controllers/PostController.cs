@@ -4,6 +4,7 @@ using RestSharp;
 using SoLoud.Models;
 using SoLoud.Repositories;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -59,54 +60,46 @@ namespace SoLoud.ApiControllers
             HttpMultipartParser parser = new HttpMultipartParser(reqo);
 
             var client = new RestClient("https://graph.facebook.com/v2.8");
-            var req = new RestRequest("me/photos", Method.POST);
+            var req = new RestRequest("me/feed", Method.POST);
 
             req.AddParameter("message", Requesto.Caption);
             req.AddParameter("access_token", FacebookAccessToken);
-            req.AddHeader("Content-Type", "application/x-www-form-urlencoded");
 
-            //if (parser.Success)
-            //{
-            //    var i = 0;
-            //    foreach (var file in parser.Files)
-            //    {
-            //        req.AddFile("source" + i, file.Content, file.FileName, file.ContentType);
-            //        i++;
-            //    }
-            //}
-                    req.AddFile("source", parser.Files[0].Content, parser.Files[0].FileName, parser.Files[0].ContentType);
+            List<Task<string>> Tasks = new List<Task<string>>();
+
+            if (parser.Success)
+                foreach (var file in parser.Files)
+                    Tasks.Add(UploadPhoto(file, false));
+
+            string[] PhotoIds = await Task.WhenAll(Tasks);
+
+            for (int i = 0; i < PhotoIds.Length; i++)
+                if (!String.IsNullOrWhiteSpace(PhotoIds[i]))
+                    req.AddParameter("attached_media[" + i.ToString() + "]", String.Format("{{ \"media_fbid\":\"{0}\"}}", PhotoIds[i]));
 
             IRestResponse resp = client.Execute(req);
-
         }
-        private SoLoud.Models.File filo { get; set; }
-        private SoLoud.Models.File filo2 { get; set; }
-        [HttpPost]
-        [Route("ByImage2")]
-        public async Task PostByImage2([FromUri]postImageouliz Requesto)
+
+        private async Task<string> UploadPhoto(Models.File image, bool uploadAsPublished)
         {
-        
+            var client = new RestClient("https://graph.facebook.com/v2.8");
+            var req = new RestRequest("me/photos", Method.POST);
 
-            var reqo = Request.Content.ReadAsStreamAsync().Result;
-            HttpMultipartParser parser = new HttpMultipartParser(reqo);
-
-            var client = new RestClient("http://localhost:55741/api");
-            var req = new RestRequest("Posts/ByImage?Caption=yololeilo", Method.POST);
-            req.AddParameter("message", Requesto.Caption);
             req.AddParameter("access_token", FacebookAccessToken);
+            req.AddParameter("published", uploadAsPublished);
             req.AddHeader("Content-Type", "application/x-www-form-urlencoded");
 
-            //if (parser.Success)
-            //{
-            //    var i = 0;
-            //    foreach (var file in parser.Files)
-            //    {
-            //        req.AddFile("source" + i, file.Content, file.FileName, file.ContentType);
-            //        i++;
-            //    }
-            //}
-            req.AddFile("source", parser.Files[0].Content, parser.Files[0].FileName, parser.Files[0].ContentType);
+            req.AddFile("source", image.Content, image.FileName, image.ContentType);
 
+            IRestResponse<FacebookImageResponse> resp = await client.ExecuteTaskAsync<FacebookImageResponse>(req);
+
+            return resp.Data.id;
+        }
+
+        private class FacebookImageResponse
+        {
+            public string id { get; set; }
+            public string post_id { get; set; }
         }
 
         public class postImageouliz

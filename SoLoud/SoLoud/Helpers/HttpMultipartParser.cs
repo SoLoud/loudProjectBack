@@ -112,6 +112,7 @@ namespace HttpUtils
             return true;
         }
 
+        //TODO: this work very good BUT: if the file name is NOT in english it will end up not parsing the Contents properly. This happens because the index on the Contents RegEx Group is NOT correct
         private bool tryGetFile(Section Section, out SoLoud.Models.File File)
         {
             File = new SoLoud.Models.File();
