@@ -117,7 +117,7 @@ namespace SoLoud.Providers
             //Get User Using FacebookToken
             var fb = new FacebookClient(facebookToken);
 
-            Helpers.Facebook.Me me = fb.Get<Helpers.Facebook.Me>("me", new { fields = "id, name, email, gender, birthday, picture.type(large)" });
+            Facebook.Me me = fb.Get<Facebook.Me>("me", new { fields = "id, name, email, gender, birthday, picture.type(large)" });
 
             var User = userManager.FindByEmail(me.email);
 

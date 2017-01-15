@@ -12,7 +12,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
-using static SoLoud.Helpers.Facebook;
+using Facebook;
 
 namespace SoLoud.ApiControllers
 {
@@ -43,7 +43,7 @@ namespace SoLoud.ApiControllers
             var reqo = Request.Content.ReadAsStreamAsync().Result;
             HttpMultipartParser parser = new HttpMultipartParser(reqo);
 
-            var fbClient = new Client(FacebookAccessToken);
+            var fbClient = new FbClient(FacebookAccessToken);
 
             if (parser.Success) 
                 await fbClient.MultiphotoStory(parser.Files, Requesto.Caption);
