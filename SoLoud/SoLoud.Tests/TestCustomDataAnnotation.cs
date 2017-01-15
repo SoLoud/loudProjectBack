@@ -21,5 +21,10 @@ namespace SoLoud.Tests
 
             cont.Users.Add(asdok);
         }
+        [Test]
+        public void TITHAGINEIGAMW()
+        {
+            Assert.IsTrue(false);
+        }
     }
 }

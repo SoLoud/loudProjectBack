@@ -20,6 +20,7 @@ namespace SoLoud.ApiControllers
     [RoutePrefix("api/Posts")]
     public class Post2Controller : BaseApiController
     {
+        [Route("ByUrl")]
         private void UploadByUrl()
         {
             var client = new RestClient("https://graph.facebook.com/v2.8");
@@ -37,7 +38,7 @@ namespace SoLoud.ApiControllers
         }
 
         [HttpPost]
-        [Route("ByImage")]
+        [Route("")]
         public async Task PostByImage([FromUri]postImageouliz Requesto)
         {
             var reqo = Request.Content.ReadAsStreamAsync().Result;
