@@ -47,7 +47,7 @@ namespace SoLoud.ApiControllers
             var fbClient = new FbClient(FacebookAccessToken);
 
             if (parser.Success) 
-                await fbClient.MultiphotoStory(parser.Files, Requesto.Caption);
+                await fbClient.MultiphotoStory(parser.Files, parser.Parameters["caption"]);
         }
 
         public class postImageouliz

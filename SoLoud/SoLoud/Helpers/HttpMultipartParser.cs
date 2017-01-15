@@ -56,10 +56,14 @@ namespace HttpUtils
 
         private bool isFile(string section)
         {
-            Regex re = new Regex(@"(?<=Content\-Type:)(.*?)(?=\r\n\r\n)");
+            Regex re = new Regex(@"(?<=Content\-Type: )(?<ContentType>.*?)(?=\r\n)");
             Match contentTypeMatch = re.Match(section);
 
-            return contentTypeMatch.Success;
+            if(!contentTypeMatch.Success) return false;
+
+            if (contentTypeMatch.Groups["ContentType"].Value.StartsWith("text/plain")) return false;
+
+            return true;
         }
 
         private class Section
@@ -83,7 +87,7 @@ namespace HttpUtils
 
             delimiter = content.Substring(0, delimiterEndIndex);
 
-            foreach(var sectionData in Misc.Split(data, Encoding.GetBytes(delimiter)))
+            foreach (var sectionData in Misc.Split(data, Encoding.GetBytes(delimiter)))
             {
                 var section = new Section()
                 {
@@ -101,12 +105,15 @@ namespace HttpUtils
         {
             Name = ""; Value = "";
 
-            Regex re = new Regex(@"(?<=name=\"")(?<Name>.*?)(?>\""\r\n\r\n)(?<Value>.*?)(?=\r\n)");
-            Match parameterMatch = re.Match(Section.AsString);
+            Regex parameterNameRegex = new Regex(@"(?<=name=\"")(?<Name>.*?)(?>\""\r\n)");
+            Regex parameterRegex = new Regex(@"(?>\r\n\r\n)(?<Value>.*?)(?=\r\n)");
 
-            if (!parameterMatch.Success) return false;
+            Match parameterNameMatch = parameterNameRegex.Match(Section.AsString);
+            Match parameterMatch = parameterRegex.Match(Section.AsString);
 
-            Name = parameterMatch.Groups["Name"].Value;
+            if (!parameterMatch.Success || !parameterNameMatch.Success) return false;
+
+            Name = parameterNameMatch.Groups["Name"].Value;
             Value = parameterMatch.Groups["Value"].Value;
 
             return true;
@@ -116,26 +123,24 @@ namespace HttpUtils
         {
             File = new SoLoud.Models.File();
 
-            Regex re = new Regex(@"(?<=filename=\"")" +                          //Starts With: filename=\"
-                                 @"(?<FileName>.*?)" +                           //**Capturing group** 
-                                 @"(?>\""\r\nContent\-Type:[\s]+)" +
-                                 @"(?<ContentType>.*?)" +                        //**Capturing group** 
-                                 @"(?>\r\n\r\n)" +
-                                 @"(?<Contents>.*)"                              //**Capturing group** 
-                                , RegexOptions.Singleline);
+            Regex fileNameRegex = new Regex(@"(?<=filename=\"")(?<FileName>.*?)(?>\""\r\n)", RegexOptions.Singleline);
+            Regex contentTypeRegex = new Regex(@"(?<=Content\-Type:[\s]+)(?<ContentType>.*?)(?>\r\n)", RegexOptions.Singleline);
+            Regex contentsRegex = new Regex(@"(?>\r\n\r\n)(?<Contents>.*)", RegexOptions.Singleline);
 
-            Match FileMatch = re.Match(Section.AsString);
+            Match fileNameMatch = fileNameRegex.Match(Section.AsString);
+            Match contentTypeMatch = contentTypeRegex.Match(Section.AsString);
+            Match contentsMatch = contentsRegex.Match(Section.AsString);
 
-            if (!FileMatch.Success) return false;
+            if (!fileNameMatch.Success || !contentTypeMatch.Success || !contentsMatch.Success) return false;
 
-            var FileName = FileMatch.Groups["FileName"].Value;
-            var ContentType = FileMatch.Groups["ContentType"].Value;
+            var FileName = fileNameMatch.Groups["FileName"].Value;
+            var ContentType = contentTypeMatch.Groups["ContentType"].Value;
 
             //This is the old way to get the content length. Which is wrong. This assumes that Every character in the encoding we are using is 1 byte. 
             //That is not true in some encodings especialy for foreign languagues like greek. So the ContentStartIndex is not the string index for the last capturing group.
             //var ContentStartIndex = FileMatch.Groups["Contents"].Index;
 
-            var stringBeforeTheContents = Section.AsString.Substring(0, FileMatch.Groups["Contents"].Index);
+            var stringBeforeTheContents = Section.AsString.Substring(0, contentsMatch.Groups["Contents"].Index);
             var ContentStartIndex = Encoding.GetByteCount(stringBeforeTheContents);
 
             var ContentLength = Section.AsBytes.Length - ContentStartIndex;
