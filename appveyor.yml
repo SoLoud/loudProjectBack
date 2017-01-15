@@ -1,3 +1,7 @@
+
+#appveyor versioning
+version: '1.0.0.{build}'
+
 #restore NuGet packages before running MSBuild
 before_build:
   - nuget restore SoLoud
@@ -5,9 +9,6 @@ before_build:
 #cache NuGet between builds
 cache:
   - SoLoud\packages -> SoLoud\SoLoud\packages.config
-
-#appveyor versioning
-version: '1.0.0.{build}'
 
 #package Web Application project for Web Deploy
 build:
@@ -19,3 +20,18 @@ test:
   categories:
     except:
       - NotRun
+
+#web deploy settings
+deploy:
+  provider: WebDeploy
+  server:
+    secure: n1JwHW2EsOBwp1SV6H7xNMJnvjAfi13Ygg81oyw6u+/z+QyC0ZXG/VCVdYmugf7i+12vuUDZPKUuq4vCwVQ9q8b4lz8gxrNJH/h36D4XxII=
+  website:
+    secure: IMzx9ry+hYkAHWnwzhiQFA==
+  username: 
+    secure: HG9RRongGAlfQqeFobPrRQ==
+  password: 
+    secure: f1t0w1qIUQw/A6TbLgIifyZoF0V1OEhDslUmdeGM/ch/vC8XeVOweJ950g5s5gZ0pFt8dX2qCh3N0nYETzwPIA==
+  ntlm: false
+  remove_files: true
+  artifact:
