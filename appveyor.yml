@@ -4,12 +4,18 @@ before_build:
 
 #cache NuGet between builds
 cache:
-  - SoLoud\packages -> **\packages.config
+  - SoLoud\packages -> SoLoud\SoLoud\packages.config
 
 #appveyor versioning
 version: '1.0.0.{build}'
 
 #package Web Application project for Web Deploy
 build:
- verbosity: minimal
- publish_wap: true
+  verbosity: minimal
+  publish_wap: true
+
+#Tests configuration
+test:
+  categories:
+    except:
+      - NotRun
