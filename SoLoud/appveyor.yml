@@ -3,3 +3,5 @@ before_build:
 
 cache:
   - SoLoud\packages -> **\packages.config
+
+version: '1.0.0.{build}'
