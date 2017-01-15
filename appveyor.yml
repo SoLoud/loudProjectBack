@@ -1,7 +1,15 @@
+#restore NuGet packages before running MSBuild
 before_build:
   - nuget restore SoLoud
 
+#cache NuGet between builds
 cache:
   - SoLoud\packages -> **\packages.config
 
+#appveyor versioning
 version: '1.0.0.{build}'
+
+#package Web Application project for Web Deploy
+build:
+ verbosity: minimal
+ publish_wap: true
