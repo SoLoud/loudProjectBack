@@ -13,7 +13,7 @@ namespace SoLoud.Tests
     class CustomDataAnnotationTest
     {
         [Test]
-        [Category("CustomDataNotation")]
+        [Category("CustomDataNotation")] 
         public void test()
         {
             var cont = new SoLoudContext();
