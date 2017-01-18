@@ -13,6 +13,7 @@ namespace SoLoud.Tests
     class CustomDataAnnotationTest
     {
         [Test]
+        [Category("CustomDataNotation")]
         public void test()
         {
             var cont = new SoLoudContext();
@@ -22,6 +23,7 @@ namespace SoLoud.Tests
             cont.Users.Add(asdok);
         }
         [Test]
+        [Category("CustomDataNotation")]
         public void TITHAGINEIGAMW()
         {
             Assert.IsTrue(false);
