@@ -7,13 +7,13 @@ namespace SoLoud.Migrations
     using System.Resources;
     
     [GeneratedCode("EntityFramework.Migrations", "6.1.3-40302")]
-    public sealed partial class AddedImagesToContests : IMigrationMetadata
+    public sealed partial class Init : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(AddedImagesToContests));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(Init));
         
         string IMigrationMetadata.Id
         {
-            get { return "201611061336474_AddedImagesToContests"; }
+            get { return "201701232033388_Init"; }
         }
         
         string IMigrationMetadata.Source

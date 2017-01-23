@@ -14,9 +14,6 @@ namespace SoLoud.Models
         public string Id { get; set; }
         [Required]
         public string UserId { get; set; }
-        public virtual ApplicationUser User { get; set; }
-        public virtual ICollection<HashTag> HashTags { get; set; }
-
-        public virtual ICollection<File> Photos { get; set; }
+        public ApplicationUser User { get; set; }
     }
 }

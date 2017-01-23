@@ -59,6 +59,11 @@ namespace SoLoud.ApiControllers
     [JsonOnly]
     public class BaseApiController : ApiController
     {
+        internal IDictionary<string, object> GetControllerRoute()
+        {
+            return this.ControllerContext.RouteData.Values;
+        }
+
         private IAuthenticationManager AuthenticationManager
         {
             get

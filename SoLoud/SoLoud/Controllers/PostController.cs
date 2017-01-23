@@ -20,7 +20,6 @@ namespace SoLoud.ApiControllers
     [RoutePrefix("api/Posts")]
     public class Post2Controller : BaseApiController
     {
-        [Route("ByUrl")]
         private void UploadByUrl()
         {
             var client = new RestClient("https://graph.facebook.com/v2.8");
@@ -39,7 +38,7 @@ namespace SoLoud.ApiControllers
 
         [HttpPost]
         [Route("")]
-        public async Task PostByImage([FromUri]postImageouliz Requesto)
+        public async Task PostByImage()
         {
             var reqo = Request.Content.ReadAsStreamAsync().Result;
             HttpMultipartParser parser = new HttpMultipartParser(reqo);
@@ -49,12 +48,6 @@ namespace SoLoud.ApiControllers
             if (parser.Success) 
                 await fbClient.MultiphotoStory(parser.Files, parser.Parameters["caption"]);
         }
-
-        public class postImageouliz
-        {
-            public string Caption { get; set; }
-        }
-
     }
 
     [Authorize]

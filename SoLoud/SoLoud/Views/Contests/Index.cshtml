@@ -1,9 +1,7 @@
 ﻿@model IEnumerable<SoLoud.Models.Contest>
-
 @{
     ViewBag.Title = "Index";
 }
-
 @if (Model == null || Model.Count() == 0)
 {
     <div class="w3-row-padding">
@@ -35,30 +33,33 @@ else
             <span class="w3-right w3-opacity">@item.CreatedAt.DayOfWeek.ToString() , @item.CreatedAt.Day.ToString()/@item.CreatedAt.Month/@item.CreatedAt.Year</span>
             <h4>@item.Title</h4><br>
             <dl class="dl-horizontal">
-                @if (item.Photos.Any(f => f.FileType == SoLoud.Models.FileType.Photo))
+                @if (item.ExamplePhotos != null && item.ExamplePhotos.Any(f => f.FileType == SoLoud.Models.FileType.Photo))
                 {
                     <dd>
-                        <img style="max-width: 200px" src="~/File?id=@item.Photos.First(f => f.FileType == SoLoud.Models.FileType.Photo).FileId" alt="Photo" />
+                        <img style="max-width: 200px" src="~/File?id=@item.ExamplePhotos.First(f => f.FileType == SoLoud.Models.FileType.Photo).FileId" alt="Photo" />
                     </dd>
                 }
             </dl>
-                <hr class="w3-clear">
-                <p>@item.Description</p>
-                <div class="w3-container">
-                    <p>
-                        @if (item.HashTags == null)
+            <hr class="w3-clear">
+            <p>@item.Description</p>
+            <div class="w3-container">
+                <p>
+                    @if (item.RequiredHashTags != null)
                     {
-                        <p>isEMPTY</p>
-                        }
-                        else
+                        foreach (var tag in item.RequiredHashTags.Split(','))
                         {
-                            foreach (var tag in item.HashTags)
-                            {
-                                <span class="w3-tag w3-small w3-theme-d2">#@tag.Name</span>
-                            }
+                            <span class="w3-tag w3-small w3-theme-d2">#@tag</span>
                         }
-                        </p>
-                    </div>
-</div>
+                    }
+                    @if (item.OptionalHashTags != null)
+                    {
+                        foreach (var tag in item.OptionalHashTags.Split(','))
+                        {
+                            <span class="w3-tag w3-small w3-theme-d2">#@tag</span>
+                        }
+                    }
+                </p>
+            </div>
+        </div>
     }
 }

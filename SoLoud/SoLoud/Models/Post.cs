@@ -18,5 +18,10 @@ namespace SoLoud.Models
         public DateTimeOffset? VerifiedAt { get; set; }
         [Required]
         public SocialMedia SocialMedium { get; set; }
+        public string HashTags { get; set; }
+        public ICollection<File> Photos { get; set; }
+
+        public string ContestId { get; set; }
+        public Contest Contest { get; set; }
     }
 }

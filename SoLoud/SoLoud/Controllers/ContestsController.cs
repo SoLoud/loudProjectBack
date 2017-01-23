@@ -2,11 +2,15 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.Data.Entity.Infrastructure;
 using System.Drawing;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Web;
 using System.Web.Http;
+using System.Web.Http.Description;
+using System.Web.Http.OData;
 using System.Web.Mvc;
 
 namespace SoLoud.Controllers
@@ -20,7 +24,7 @@ namespace SoLoud.Controllers
         // GET: Contests
         public ActionResult Index()
         {
-            var contests = db.Contests/*.Include(c => c.User)*/;
+            var contests = db.Contests.Include(c => c.ExamplePhotos).Include(c => c.ProductPhotos);
             return View(contests.ToList());
         }
 
@@ -124,26 +128,13 @@ namespace SoLoud.Controllers
                 {
                     newPhoto.Content = reader.ReadBytes(contest.ProductImage.ContentLength);
                 }
-                newContest.Photos = new List<File>() {
+                newContest.ExamplePhotos = new List<File>() {
                     newPhoto
                 };
             }
 
-            var HashTags = new List<HashTag>();
-            foreach (var Tag in contest.HashTags.Split(','))
-            {
-                HashTags.Add(new HashTag()
-                {
-                    Id = Guid.NewGuid().ToString(),
-                    Name = Tag.Trim(),
-                    IsRequired = true,
-                    ItemId = newContest.Id
-                });
-            }
-
             if (ModelState.IsValid)
             {
-                db.HashTags.AddRange(HashTags);
                 db.Contests.Add(newContest);
                 db.SaveChanges();
                 return RedirectToAction("Index");
@@ -228,23 +219,138 @@ namespace SoLoud.ApiControllers
     [System.Web.Http.RoutePrefix("api/Contests")]
     public class ContestsApiController : BaseApiController
     {
+        private SoLoudContext db = new SoLoudContext();
 
-        [System.Web.Http.HttpGet]
-        [System.Web.Http.Route("")]
-        public List<Contest> Get()
+        public ContestsApiController()
         {
-            var context = new SoLoudContext();
 
-            return context.Contests.Include("HashTags").ToList();
         }
 
+        // GET: api/Contests2
+        [EnableQuery]
+        [System.Web.Http.HttpGet]
+        [System.Web.Http.Route("")]
+        public IQueryable<Contest> GetContentItems()
+        {
+            var a = Request.GetRequestContext().VirtualPathRoot;
+
+            return db.Contests;
+
+        }
+
+        // GET: api/Contests2/5
         [System.Web.Http.HttpGet]
         [System.Web.Http.Route("{id}")]
-        public Contest Get(string id)
+        public IHttpActionResult GetContest(string id)
         {
-            var context = new SoLoudContext();
+            Contest contest = db.Contests.Find(id);
+            if (contest == null)
+            {
+                return NotFound();
+            }
 
-            return context.Contests.FirstOrDefault(x => x.Id == id);
+            return Ok(contest);
+        }
+
+        // PUT: api/Contests2/5
+        [ResponseType(typeof(void))]
+        [System.Web.Http.HttpPut]
+        [System.Web.Http.Route("{id}")]
+        public IHttpActionResult PutContest(string id, Contest contest)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (id != contest.Id)
+            {
+                return BadRequest();
+            }
+
+            db.Entry(contest).State = EntityState.Modified;
+
+            try
+            {
+                db.SaveChanges();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!ContestExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return StatusCode(HttpStatusCode.NoContent);
+        }
+
+        // POST: api/Contests2
+        [ResponseType(typeof(Contest))]
+        [System.Web.Http.HttpPost]
+        [System.Web.Http.Route("")]
+        public IHttpActionResult PostContest(Contest contest)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            db.Contests.Add(contest);
+
+            try
+            {
+                db.SaveChanges();
+            }
+            catch (DbUpdateException)
+            {
+                if (ContestExists(contest.Id))
+                {
+                    return Conflict();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return CreatedAtRoute("DefaultApi", new { id = contest.Id }, contest);
+        }
+
+        // DELETE: api/Contests2/5
+        [ResponseType(typeof(Contest))]
+        [System.Web.Http.HttpDelete]
+        [System.Web.Http.Route("{id}")]
+        public IHttpActionResult DeleteContest(string id)
+        {
+            Contest contest = db.Contests.Find(id);
+            if (contest == null)
+            {
+                return NotFound();
+            }
+
+            db.Contests.Remove(contest);
+            db.SaveChanges();
+
+            return Ok(contest);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                db.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+
+        private bool ContestExists(string id)
+        {
+            return db.Contests.Count(e => e.Id == id) > 0;
         }
     }
 }

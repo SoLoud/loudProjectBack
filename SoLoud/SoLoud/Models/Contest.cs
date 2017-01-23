@@ -34,7 +34,9 @@ namespace SoLoud.Models
         public DateTimeOffset CreatedAt { get; set; }
         public DateTimeOffset EndingAt { get; set; }
         public Categoies Category { get; set; }
-        public string ProductImageUrl { get; set; }
-        public string ExampleImageUrl { get; set; }
+        public string RequiredHashTags { get; set; }
+        public string OptionalHashTags { get; set; }
+        public ICollection<File> ProductPhotos { get; set; }
+        public ICollection<File> ExamplePhotos { get; set; }
     }
 }
