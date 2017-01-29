@@ -185,15 +185,9 @@ namespace SoLoud.Controllers
         {
             if (ModelState.IsValid)
             {
-                var context = new SoLoudContext();
-                var UserRole = context.Roles.FirstOrDefault(x => x.Name == "Company");
-
-                var user = new ApplicationUser { UserName = model.Email, Email = model.Email, Hometown = model.Hometown };
-                user.Roles.Add(new IdentityUserRole() { RoleId = UserRole.Id, UserId = user.Id });
-
-                var result = await UserManager.CreateAsync(user, model.Password);
-                if (result.Succeeded)
-                {
+                var user = await CreateUser("Company", model.Email, model.Email, model.Hometown);
+                //if (result.Succeeded)
+                //{
                     //  Comment the following line to prevent log in until the user is confirmed.
                     //  await SignInManager.SignInAsync(user, isPersistent:false, rememberBrowser:false);
 
@@ -203,8 +197,8 @@ namespace SoLoud.Controllers
 
                     return View("Error");
                     //return RedirectToAction("Index", "Home");
-                }
-                AddErrors(result);
+                //}
+                //AddErrors(result);
             }
 
             // If we got this far, something failed, redisplay form
@@ -400,6 +394,19 @@ namespace SoLoud.Controllers
             }
         }
 
+        internal async Task<ApplicationUser> CreateUser(string UserType, string email, string username, string hometown)
+        {
+            var context = new SoLoudContext();
+            var UserRole = context.Roles.FirstOrDefault(x => x.Name == UserType);
+
+            var user = new ApplicationUser { UserName = username, Email = email, Hometown = hometown };
+            user.Roles.Add(new IdentityUserRole() { RoleId = UserRole.Id, UserId = user.Id });
+
+            var result = await UserManager.CreateAsync(user);
+
+            return UserManager.FindById(user.Id);
+        }
+
         // POST: /Account/ExternalLoginConfirmation
         [HttpPost]
         [AllowAnonymous]
@@ -423,20 +430,8 @@ namespace SoLoud.Controllers
                 var result = IdentityResult.Success;
                 var user = UserManager.FindByEmail(model.Email);
                 if (user == null)
-                {
-                    var context = new SoLoudContext();
-                    var UserRole = context.Roles.FirstOrDefault(x => x.Name == "User");
+                    user = await CreateUser("User", model.Email, model.Email, model.Hometown);
 
-                    user = new ApplicationUser { UserName = model.Email, Email = model.Email, Hometown = model.Hometown };
-                    user.Roles.Add(new IdentityUserRole() { RoleId = UserRole.Id, UserId = user.Id });
-
-                    //var externalIdentity = await AuthenticationManager.GetExternalIdentityAsync(DefaultAuthenticationTypes.ExternalCookie);
-                    //foreach (var claim in externalIdentity.Claims)
-                    //    if (claim.Type == "FacebookAccessToken")
-                    //        user.Claims.Add(new IdentityUserClaim() { ClaimType = claim.Type, ClaimValue = claim.Value, UserId = user.Id });
-
-                    result = await UserManager.CreateAsync(user);
-                }
                 if (result.Succeeded)
                 {
                     result = await UserManager.AddLoginAsync(user.Id, info.Login);

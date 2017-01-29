@@ -10,6 +10,8 @@ using Microsoft.AspNet.Identity.Owin;
 using System.Web;
 using Microsoft.Owin.Security;
 using Newtonsoft.Json;
+using SoLoud.Models;
+using SoLoud.Controllers;
 
 namespace SoLoud.Providers
 {
@@ -47,20 +49,24 @@ namespace SoLoud.Providers
             return Task.FromResult<object>(null);
         }
 
-        public override Task GrantResourceOwnerCredentials(OAuthGrantResourceOwnerCredentialsContext context)
+        public async override Task GrantResourceOwnerCredentials(OAuthGrantResourceOwnerCredentialsContext context)
         {
             var ExternalLoginTokenType = getExternalLoginType(context);
 
             switch (ExternalLoginTokenType)
             {
                 case ExternalLoginTokenType.Facebook:
-                    return GrantResourceOwnerCredentialsFromFacebookToken(context);
+                    await GrantResourceOwnerCredentialsFromFacebookToken(context);
+                    return;
                 case ExternalLoginTokenType.Twitter:
-                    return GrantResourceOwnerCredentialsFromTwitterToken(context);
+                    await GrantResourceOwnerCredentialsFromTwitterToken(context);
+                    return;
                 case ExternalLoginTokenType.Instagram:
-                    return GrantResourceOwnerCredentialsFromInstagramToken(context);
+                    await GrantResourceOwnerCredentialsFromInstagramToken(context);
+                    return;
                 default:
-                    return base.GrantResourceOwnerCredentials(context);
+                    await base.GrantResourceOwnerCredentials(context);
+                    return;
             }
         }
 
@@ -107,7 +113,7 @@ namespace SoLoud.Providers
             return null;
         }
 
-        private Task GrantResourceOwnerCredentialsFromFacebookToken(OAuthGrantResourceOwnerCredentialsContext context)
+        private async Task GrantResourceOwnerCredentialsFromFacebookToken(OAuthGrantResourceOwnerCredentialsContext context)
         {
             //Find External Token
             var facebookToken = getExternalToken(context);
@@ -120,6 +126,11 @@ namespace SoLoud.Providers
             Facebook.Me me = fb.Get<Facebook.Me>("me", new { fields = "id, name, email, gender, birthday, picture.type(large)" });
 
             var User = userManager.FindByEmail(me.email);
+            if (User == null)
+            {
+                var AccCtrl = new AccountController(HttpContext.Current.GetOwinContext().GetUserManager<ApplicationUserManager>(), HttpContext.Current.GetOwinContext().GetUserManager<ApplicationSignInManager>());
+                User = await AccCtrl.CreateUser("User", me.email, me.email, null);
+            }
 
             //Create Token and return
             var identity = new ClaimsIdentity(context.Options.AuthenticationType);
@@ -134,7 +145,7 @@ namespace SoLoud.Providers
             var ticket = new AuthenticationTicket(identity, props);
             context.Validated(ticket);
 
-            return Task.FromResult<object>(null);
+            return;
         }
 
         private Task GrantResourceOwnerCredentialsFromTwitterToken(OAuthGrantResourceOwnerCredentialsContext context)
