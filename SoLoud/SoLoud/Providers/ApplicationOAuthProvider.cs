@@ -12,6 +12,7 @@ using Microsoft.Owin.Security;
 using Newtonsoft.Json;
 using SoLoud.Models;
 using SoLoud.Controllers;
+using System.Linq;
 
 namespace SoLoud.Providers
 {
@@ -27,6 +28,21 @@ namespace SoLoud.Providers
             }
 
             _publicClientId = publicClientId;
+        }
+
+        public override Task MatchEndpoint(OAuthMatchEndpointContext context)
+        {
+            if (context.IsTokenEndpoint)
+            {
+                // Allows cors for the /token endpoint this is different from webapi endpoints. 
+                context.OwinContext.Response.Headers.Add("Access-Control-Allow-Origin", new[] { "*" });
+                context.OwinContext.Response.Headers.Add("Access-Control-Allow-Headers", new[] { "*" });
+                if (context.Request.Method == "OPTIONS")
+                    context.RequestCompleted();
+                return Task.FromResult(0);
+            }
+
+            return base.MatchEndpoint(context);
         }
 
         public override Task ValidateClientRedirectUri(OAuthValidateClientRedirectUriContext context)
@@ -55,6 +71,9 @@ namespace SoLoud.Providers
 
             switch (ExternalLoginTokenType)
             {
+                case ExternalLoginTokenType.None:
+                    await GrantCredentials(context);
+                    return;
                 case ExternalLoginTokenType.Facebook:
                     await GrantResourceOwnerCredentialsFromFacebookToken(context);
                     return;
@@ -84,7 +103,6 @@ namespace SoLoud.Providers
         {
             context.Validated();
             return Task.FromResult<object>(null);
-            //return base.ValidateClientAuthentication(context);
         }
 
         private ExternalLoginTokenType getExternalLoginType(OAuthGrantResourceOwnerCredentialsContext context)
@@ -113,6 +131,74 @@ namespace SoLoud.Providers
             return null;
         }
 
+        private async Task<string> getParameter(OAuthGrantResourceOwnerCredentialsContext context, string parameter)
+        {
+            var form = await context.Request.ReadFormAsync();
+
+            if (!string.IsNullOrEmpty(form[parameter]))
+                return form[parameter];
+            else
+                return null;
+        }
+
+        private async Task<string> getPassword(OAuthGrantResourceOwnerCredentialsContext context)
+        {
+            return await getParameter(context, "password");
+        }
+
+        private async Task<string> getUsername(OAuthGrantResourceOwnerCredentialsContext context)
+        {
+            return await getParameter(context, "username");
+        }
+
+        internal async Task<string> SendEmailConfirmationTokenAsync(string userID, string subject)
+        {
+            string code = await userManager.GenerateEmailConfirmationTokenAsync(userID);
+
+            var callbackUrl = String.Format("{0}://{1}/Account/ConfirmEmail?userId={2}&code={3}", HttpContext.Current.Request.Url.Scheme, HttpContext.Current.Request.Url.Authority, userID, code);
+            await userManager.SendEmailAsync(userID, subject, "Please confirm your account by clicking <a href=\"" + callbackUrl + "\">here</a>");
+
+            return callbackUrl;
+        }
+
+        private async Task GrantCredentials(OAuthGrantResourceOwnerCredentialsContext context)
+        {
+            string username = await getUsername(context);
+            string password = await getPassword(context);
+
+            // Require the user to have a confirmed email before they can log on.
+            var user = userManager.Find(username, password);
+            if (user == null)
+            {
+                context.SetError("10001", "Wrong Email/Password combination");
+                return;
+            }
+            else if (!await userManager.IsEmailConfirmedAsync(user.Id))
+            {
+                var AccCtrl = new AccountController(HttpContext.Current.GetOwinContext().GetUserManager<ApplicationUserManager>(), HttpContext.Current.GetOwinContext().GetUserManager<ApplicationSignInManager>());
+
+                await SendEmailConfirmationTokenAsync(user.Id, "Confirm your account-Resend");
+
+                context.SetError("10002", "Email is not confirmed. A confirmation email has been sent to " + username + ". Confirm your account and try again.");
+                return;
+            }
+
+            //Create Token and return
+            var identity = new ClaimsIdentity(context.Options.AuthenticationType);
+            identity.AddClaim(new Claim("UserName", username));
+            identity.AddClaim(new Claim("UserId", user.Id));
+
+            var props = new AuthenticationProperties(new Dictionary<string, string>
+            {
+                { "User", JsonConvert.SerializeObject(user) }
+            });
+
+            var ticket = new AuthenticationTicket(identity, props);
+            context.Validated(ticket);
+
+            return;
+        }
+
         private async Task GrantResourceOwnerCredentialsFromFacebookToken(OAuthGrantResourceOwnerCredentialsContext context)
         {
             //Find External Token
@@ -135,7 +221,14 @@ namespace SoLoud.Providers
             //Create Token and return
             var identity = new ClaimsIdentity(context.Options.AuthenticationType);
             identity.AddClaim(new Claim("UserName", User.UserName));
+            identity.AddClaim(new Claim("UserId", User.Id));
             identity.AddClaim(new Claim("FacebookAccessToken", facebookToken));
+
+            //find user roles
+            var LoudContext = new SoLoudContext();
+            var UserRoles = User.Roles.Join(LoudContext.Roles, x => x.RoleId, r => r.Id, (x, r) => r.Name);
+            if (UserRoles != null && UserRoles.Count() > 0)
+                identity.AddClaim(new Claim("Roles", UserRoles.Aggregate((acc, cur) => acc += "," + cur)));
 
             var props = new AuthenticationProperties(new Dictionary<string, string>
             {

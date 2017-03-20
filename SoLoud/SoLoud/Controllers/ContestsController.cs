@@ -223,7 +223,8 @@ namespace SoLoud.ApiControllers
 
         public ContestsApiController()
         {
-
+            //this.Configuration.Formatters.JsonFormatter.SerializerSettings.MissingMemberHandling = Newtonsoft.Json.MissingMemberHandling.Ignore;
+            //this.Configuration.Formatters.JsonFormatter.SerializerSettings.
         }
 
         // GET: api/Contests2
@@ -232,10 +233,7 @@ namespace SoLoud.ApiControllers
         [System.Web.Http.Route("")]
         public IQueryable<Contest> GetContentItems()
         {
-            var a = Request.GetRequestContext().VirtualPathRoot;
-
             return db.Contests;
-
         }
 
         // GET: api/Contests2/5
@@ -295,6 +293,12 @@ namespace SoLoud.ApiControllers
         [System.Web.Http.Route("")]
         public IHttpActionResult PostContest(Contest contest)
         {
+            ModelState.Clear();
+            contest.UserId = UserId;
+            if (contest.Id == null)
+                contest.Id = Guid.NewGuid().ToString();
+            Validate(contest);
+
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
@@ -316,6 +320,10 @@ namespace SoLoud.ApiControllers
                 {
                     throw;
                 }
+            }
+            catch(Exception e)
+            {
+
             }
 
             return CreatedAtRoute("DefaultApi", new { id = contest.Id }, contest);

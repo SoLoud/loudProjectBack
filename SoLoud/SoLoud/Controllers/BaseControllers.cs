@@ -84,7 +84,13 @@ namespace SoLoud.ApiControllers
         {
             get
             {
-                return UserClaim.Identity.GetUserId();
+                var claim = (UserClaim.Identity as ClaimsIdentity).FindFirst("UserId");
+
+                string useriD = null;
+                if (claim != null)
+                    useriD = claim.Value;
+
+                return useriD;
             }
         }
 

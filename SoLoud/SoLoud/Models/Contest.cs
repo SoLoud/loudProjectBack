@@ -36,7 +36,7 @@ namespace SoLoud.Models
         public Categoies Category { get; set; }
         public string RequiredHashTags { get; set; }
         public string OptionalHashTags { get; set; }
-        public ICollection<File> ProductPhotos { get; set; }
-        public ICollection<File> ExamplePhotos { get; set; }
+        public List<File> ProductPhotos { get; set; }
+        public List<File> ExamplePhotos { get; set; }
     }
 }

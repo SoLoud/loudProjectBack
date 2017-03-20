@@ -98,7 +98,7 @@ namespace SoLoud.Controllers
             {
                 if (!await UserManager.IsEmailConfirmedAsync(user.Id))
                 {
-                    string callbackUrl = await SendEmailConfirmationTokenAsync(user.Id, "Confirm your account-Resend");
+                    string callbackUrl = await SendEmailConfirmationTokenAsync(user.Id, "Confirm your account-Resend", Request.Url.Scheme);
 
                     // Uncomment to debug locally  
                     // ViewBag.Link = callbackUrl;
@@ -188,15 +188,15 @@ namespace SoLoud.Controllers
                 var user = await CreateUser("Company", model.Email, model.Email, model.Hometown);
                 //if (result.Succeeded)
                 //{
-                    //  Comment the following line to prevent log in until the user is confirmed.
-                    //  await SignInManager.SignInAsync(user, isPersistent:false, rememberBrowser:false);
+                //  Comment the following line to prevent log in until the user is confirmed.
+                //  await SignInManager.SignInAsync(user, isPersistent:false, rememberBrowser:false);
 
-                    string callbackUrl = await SendEmailConfirmationTokenAsync(user.Id, "Confirm your account");
+                string callbackUrl = await SendEmailConfirmationTokenAsync(user.Id, "Confirm your account", Request.Url.Scheme);
 
-                    ViewBag.Message = "Check your email and confirm your account, you must be confirmed " + "before you can log in.";
+                ViewBag.Message = "Check your email and confirm your account, you must be confirmed " + "before you can log in.";
 
-                    return View("Error");
-                    //return RedirectToAction("Index", "Home");
+                return View("Error");
+                //return RedirectToAction("Index", "Home");
                 //}
                 //AddErrors(result);
             }
@@ -218,13 +218,12 @@ namespace SoLoud.Controllers
             return View(result.Succeeded ? "ConfirmEmail" : "Error");
         }
 
-        private async Task<string> SendEmailConfirmationTokenAsync(string userID, string subject)
+        internal async Task<string> SendEmailConfirmationTokenAsync(string userID, string subject, string protocol)
         {
             string code = await UserManager.GenerateEmailConfirmationTokenAsync(userID);
-            var callbackUrl = Url.Action("ConfirmEmail", "Account",
-               new { userId = userID, code = code }, protocol: Request.Url.Scheme);
-            await UserManager.SendEmailAsync(userID, subject,
-               "Please confirm your account by clicking <a href=\"" + callbackUrl + "\">here</a>");
+            var Url = new UrlHelper();
+            var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = userID, code = code }, protocol: protocol);
+            await UserManager.SendEmailAsync(userID, subject, "Please confirm your account by clicking <a href=\"" + callbackUrl + "\">here</a>");
 
             return callbackUrl;
         }

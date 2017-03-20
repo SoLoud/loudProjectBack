@@ -15,14 +15,14 @@ namespace SoLoud.Models
         public int FileId { get; set; }
 
         [StringLength(255)]
-        [IgnoreDataMember]
+        //[IgnoreDataMember]
         public string FileName { get; set; }
 
         [StringLength(100)]
-        [IgnoreDataMember]
+        //[IgnoreDataMember]
         public string ContentType { get; set; }
 
-        [IgnoreDataMember]
+        //[IgnoreDataMember]
         public byte[] Content { get; set; }
 
         [IgnoreDataMember]
