@@ -13,15 +13,25 @@ namespace SoLoud.Models
     }
     public class Post : ContentItem
     {
+        public Post()
+        {
+            CreatedAt = DateTimeOffset.Now;
+        }
+
         public string Text { get; set; }
         public bool IsVerified { get; set; }
+
+        public DateTimeOffset CreatedAt { get; private set; }
+
         public DateTimeOffset? VerifiedAt { get; set; }
         [Required]
         public SocialMedia SocialMedium { get; set; }
         public string HashTags { get; set; }
-        public ICollection<File> Photos { get; set; }
+        public virtual List<File> Photos { get; set; }
 
         public string ContestId { get; set; }
-        public Contest Contest { get; set; }
+        public virtual Contest Contest { get; set; }
+
+        public string FacebookId { get; set; }
     }
 }

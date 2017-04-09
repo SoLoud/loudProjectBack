@@ -40,7 +40,6 @@ namespace SoLoud.Migrations
                     })
                 .PrimaryKey(t => t.FileId)
                 .ForeignKey("dbo.Contest", t => t.ExampleForContestId)
-                .ForeignKey("dbo.Contest", t => t.PostId)
                 .ForeignKey("dbo.Contest", t => t.ProductForContestId)
                 .ForeignKey("dbo.Post", t => t.PostId)
                 .Index(t => t.PostId)
@@ -148,7 +147,6 @@ namespace SoLoud.Migrations
             DropForeignKey("dbo.AspNetUserLogins", "UserId", "dbo.AspNetUsers");
             DropForeignKey("dbo.AspNetUserClaims", "UserId", "dbo.AspNetUsers");
             DropForeignKey("dbo.File", "ProductForContestId", "dbo.Contest");
-            DropForeignKey("dbo.File", "PostId", "dbo.Contest");
             DropForeignKey("dbo.File", "ExampleForContestId", "dbo.Contest");
             DropIndex("dbo.AspNetRoles", "RoleNameIndex");
             DropIndex("dbo.AspNetUserRoles", new[] { "RoleId" });

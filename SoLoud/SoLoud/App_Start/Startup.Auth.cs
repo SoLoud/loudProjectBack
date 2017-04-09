@@ -118,7 +118,7 @@ namespace SoLoud
                 {
                     OnAuthenticated = (context) =>
                     {
-                        context.Identity.AddClaim(new System.Security.Claims.Claim("FacebookAccessToken", context.AccessToken, ClaimValueTypes.String, "Facebook"));
+                        context.Identity.AddClaim(new System.Security.Claims.Claim(SoloudClaimTypes.FacebookAccessToken.ToString(), context.AccessToken, ClaimValueTypes.String, "Facebook"));
 
                         return Task.FromResult(0);
                     }

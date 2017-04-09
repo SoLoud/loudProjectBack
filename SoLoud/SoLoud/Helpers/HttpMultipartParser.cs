@@ -30,10 +30,11 @@ namespace HttpUtils
                 if (isFile(section.AsString))
                 {
                     var File = new SoLoud.Models.File();
-                    var success = tryGetFile(section, out File);
+                    string parameterName;
+                    var success = tryGetFile(section, out File, out parameterName);
 
                     if (success)
-                        Files.Add(File);
+                        Files.Add(parameterName, File);
                 }
                 else //is Parameter
                 {
@@ -56,12 +57,11 @@ namespace HttpUtils
 
         private bool isFile(string section)
         {
-            Regex re = new Regex(@"(?<=Content\-Type: )(?<ContentType>.*?)(?=\r\n)");
+            Regex re = new Regex(@"(?<=filename=)(?<FileName>.*?)(?=\r\n)");
             Match contentTypeMatch = re.Match(section);
 
             if(!contentTypeMatch.Success) return false;
 
-            if (contentTypeMatch.Groups["ContentType"].Value.StartsWith("text/plain")) return false;
 
             return true;
         }
@@ -119,20 +119,24 @@ namespace HttpUtils
             return true;
         }
 
-        private bool tryGetFile(Section Section, out SoLoud.Models.File File)
+        private bool tryGetFile(Section Section, out SoLoud.Models.File File, out string parameterName)
         {
             File = new SoLoud.Models.File();
+            parameterName = "";
 
+            Regex parameterNameRegex = new Regex(@"(?<=name=\"")(?<parameterName>.*?)(?>\"";)", RegexOptions.Singleline);
             Regex fileNameRegex = new Regex(@"(?<=filename=\"")(?<FileName>.*?)(?>\""\r\n)", RegexOptions.Singleline);
             Regex contentTypeRegex = new Regex(@"(?<=Content\-Type:[\s]+)(?<ContentType>.*?)(?>\r\n)", RegexOptions.Singleline);
             Regex contentsRegex = new Regex(@"(?>\r\n\r\n)(?<Contents>.*)", RegexOptions.Singleline);
 
+            Match parameterNameMatch = parameterNameRegex.Match(Section.AsString);
             Match fileNameMatch = fileNameRegex.Match(Section.AsString);
             Match contentTypeMatch = contentTypeRegex.Match(Section.AsString);
             Match contentsMatch = contentsRegex.Match(Section.AsString);
 
-            if (!fileNameMatch.Success || !contentTypeMatch.Success || !contentsMatch.Success) return false;
+            if (!fileNameMatch.Success || !contentTypeMatch.Success || !contentsMatch.Success || !parameterNameMatch.Success) return false;
 
+            parameterName = parameterNameMatch.Groups["parameterName"].Value;
             var FileName = fileNameMatch.Groups["FileName"].Value;
             var ContentType = contentTypeMatch.Groups["ContentType"].Value;
 
@@ -158,7 +162,7 @@ namespace HttpUtils
 
         public bool Success { get; private set; }
 
-        public List<SoLoud.Models.File> Files = new List<SoLoud.Models.File>();
+        public Dictionary<string,SoLoud.Models.File> Files = new Dictionary<string, SoLoud.Models.File>();
 
         private string delimiter { get; set; }
 

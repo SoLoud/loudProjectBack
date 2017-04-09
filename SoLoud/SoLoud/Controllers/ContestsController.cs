@@ -1,6 +1,9 @@
-﻿using SoLoud.Models;
+﻿using HttpUtils;
+using Newtonsoft.Json;
+using SoLoud.Models;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Drawing;
@@ -8,6 +11,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web;
+using System.Web.Helpers;
 using System.Web.Http;
 using System.Web.Http.Description;
 using System.Web.Http.OData;
@@ -217,10 +221,8 @@ namespace SoLoud.ApiControllers
 {
     [System.Web.Http.Authorize]
     [System.Web.Http.RoutePrefix("api/Contests")]
-    public class ContestsApiController : BaseApiController
+    public class ContestsApiController : AuthorizedController
     {
-        private SoLoudContext db = new SoLoudContext();
-
         public ContestsApiController()
         {
             //this.Configuration.Formatters.JsonFormatter.SerializerSettings.MissingMemberHandling = Newtonsoft.Json.MissingMemberHandling.Ignore;
@@ -291,8 +293,19 @@ namespace SoLoud.ApiControllers
         [ResponseType(typeof(Contest))]
         [System.Web.Http.HttpPost]
         [System.Web.Http.Route("")]
-        public IHttpActionResult PostContest(Contest contest)
+        public Contest PostContest()
         {
+            Contest contest;
+            var reqo = Request.Content.ReadAsStreamAsync().Result;
+            HttpMultipartParser parser = new HttpMultipartParser(reqo);
+
+            var contestJON = parser.Parameters["contest"];
+            if (contestJON == null) throw new HttpResponseException(new HttpResponseMessage() { Content = new StringContent("No contest parameter") });
+            contest = JsonConvert.DeserializeObject<Contest>(contestJON, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
+            contest.ProductPhotos = parser.Files.Where(x => x.Key.StartsWith("ProductPhotos")).Select(x => x.Value).ToList();
+            contest.ExamplePhotos = parser.Files.Where(x => x.Key.StartsWith("ExamplePhotos")).Select(x => x.Value).ToList();
+
+
             ModelState.Clear();
             contest.UserId = UserId;
             if (contest.Id == null)
@@ -300,9 +313,7 @@ namespace SoLoud.ApiControllers
             Validate(contest);
 
             if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+                throw new HttpResponseException(new HttpResponseMessage() { Content = new ObjectContent(ModelState.GetType(), ModelState, this.Configuration.Formatters.JsonFormatter) });
 
             db.Contests.Add(contest);
 
@@ -314,19 +325,15 @@ namespace SoLoud.ApiControllers
             {
                 if (ContestExists(contest.Id))
                 {
-                    return Conflict();
+                    throw new HttpResponseException(HttpStatusCode.Conflict);
                 }
                 else
                 {
                     throw;
                 }
             }
-            catch(Exception e)
-            {
 
-            }
-
-            return CreatedAtRoute("DefaultApi", new { id = contest.Id }, contest);
+            return contest;
         }
 
         // DELETE: api/Contests2/5

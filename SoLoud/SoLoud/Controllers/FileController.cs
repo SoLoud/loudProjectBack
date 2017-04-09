@@ -11,7 +11,10 @@ namespace SoLoud.Controllers
         public ActionResult Index(int id)
         {
             var fileToRetrieve = context.Files.Find(id);
-            return File(fileToRetrieve.Content, fileToRetrieve.ContentType);
+            if (fileToRetrieve == null)
+                return HttpNotFound();
+            else
+                return File(fileToRetrieve.Content, fileToRetrieve.ContentType);
         }
     }
 }

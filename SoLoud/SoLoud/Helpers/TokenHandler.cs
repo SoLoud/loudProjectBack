@@ -37,7 +37,7 @@ namespace SoLoud.Helpers
                 Subject = new ClaimsIdentity(new Claim[]
                         {
                             new Claim(ClaimTypes.Email, email),
-                            new Claim("FacebookAccessToken", FbToken),
+                            new Claim(SoloudClaimTypes.FacebookAccessToken.ToString(), FbToken),
                         }),
                 TokenIssuerName = "SoLoud",
                 //AppliesToAddress = "http://www.example.com",

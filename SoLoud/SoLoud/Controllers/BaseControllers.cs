@@ -8,6 +8,8 @@ using System.Web.Http;
 using System.Web.Mvc;
 using Microsoft.AspNet.Identity;
 using SoLoud.Filters;
+using SoLoud.Models;
+using SoLoud.Helpers;
 
 namespace SoLoud.Controllers
 {
@@ -42,7 +44,7 @@ namespace SoLoud.Controllers
         {
             get
             {
-                var claim = (UserClaim.Identity as ClaimsIdentity).FindFirst("FacebookAccessToken");
+                var claim = (UserClaim.Identity as ClaimsIdentity).FindFirst(SoloudClaimTypes.FacebookAccessToken.ToString());
 
                 string accessToken = null;
                 if (claim != null)
@@ -57,8 +59,10 @@ namespace SoLoud.Controllers
 namespace SoLoud.ApiControllers
 {
     [JsonOnly]
-    public class BaseApiController : ApiController
+    public class AuthorizedController : ApiController
     {
+        internal SoLoudContext db = new SoLoudContext();
+
         internal IDictionary<string, object> GetControllerRoute()
         {
             return this.ControllerContext.RouteData.Values;
@@ -98,7 +102,7 @@ namespace SoLoud.ApiControllers
         {
             get
             {
-                var claim = (UserClaim.Identity as ClaimsIdentity).FindFirst("FacebookAccessToken");
+                var claim = (UserClaim.Identity as ClaimsIdentity).FindFirst(SoloudClaimTypes.FacebookAccessToken.ToString());
 
                 string accessToken = null;
                 if (claim != null)

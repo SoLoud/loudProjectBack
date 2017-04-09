@@ -261,21 +261,37 @@
     <Compile Include="Controllers\PostController.cs" />
     <Compile Include="Controllers\TermsAndConditionsController.cs" />
     <Compile Include="Filters\JsonConfig.cs" />
+    <Compile Include="Filters\MasterKeyFilter.cs" />
     <Compile Include="Filters\MustBeOfRole.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Helpers\ElasticEmailHelper.cs" />
+    <Compile Include="Helpers\Encryption.cs" />
     <Compile Include="Helpers\EnumHandler.cs" />
     <Compile Include="Helpers\FacebookBackChannelHandler.cs" />
     <Compile Include="Helpers\FacebookHelpers.cs" />
+    <Compile Include="Helpers\Hasher.cs" />
     <Compile Include="Helpers\HttpMultipartParser.cs" />
     <Compile Include="Helpers\Misc.cs" />
     <Compile Include="Helpers\MyExtensions.cs" />
+    <Compile Include="Helpers\SoloudClaimTypes.cs" />
     <Compile Include="Helpers\TokenHandler.cs" />
     <Compile Include="Migrations\201701232033388_Init.cs" />
     <Compile Include="Migrations\201701232033388_Init.Designer.cs">
       <DependentUpon>201701232033388_Init.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201703221738521_ContestChanges.cs" />
+    <Compile Include="Migrations\201703221738521_ContestChanges.Designer.cs">
+      <DependentUpon>201703221738521_ContestChanges.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201703261129123_FixBugInFilesSchema.cs" />
+    <Compile Include="Migrations\201703261129123_FixBugInFilesSchema.Designer.cs">
+      <DependentUpon>201703261129123_FixBugInFilesSchema.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201704091246519_PostCreatedAt_PostFacebookId.cs" />
+    <Compile Include="Migrations\201704091246519_PostCreatedAt_PostFacebookId.Designer.cs">
+      <DependentUpon>201704091246519_PostCreatedAt_PostFacebookId.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
@@ -439,6 +455,15 @@
   <ItemGroup>
     <EmbeddedResource Include="Migrations\201701232033388_Init.resx">
       <DependentUpon>201701232033388_Init.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201703221738521_ContestChanges.resx">
+      <DependentUpon>201703221738521_ContestChanges.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201703261129123_FixBugInFilesSchema.resx">
+      <DependentUpon>201703261129123_FixBugInFilesSchema.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201704091246519_PostCreatedAt_PostFacebookId.resx">
+      <DependentUpon>201704091246519_PostCreatedAt_PostFacebookId.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

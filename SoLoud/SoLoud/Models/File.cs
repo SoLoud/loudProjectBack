@@ -15,14 +15,14 @@ namespace SoLoud.Models
         public int FileId { get; set; }
 
         [StringLength(255)]
-        //[IgnoreDataMember]
+        [IgnoreDataMember]
         public string FileName { get; set; }
 
         [StringLength(100)]
-        //[IgnoreDataMember]
+        [IgnoreDataMember]
         public string ContentType { get; set; }
 
-        //[IgnoreDataMember]
+        [IgnoreDataMember]
         public byte[] Content { get; set; }
 
         [IgnoreDataMember]
@@ -41,7 +41,9 @@ namespace SoLoud.Models
         [IgnoreDataMember]
         public string PostId { get; set; }
         [IgnoreDataMember]
-        public Contest Post { get; set; }
+        [ForeignKey("PostId")]
+        [InverseProperty("Photos")]
+        public Post Post { get; set; }
 
         [IgnoreDataMember]
         public string ProductForContestId { get; set; }

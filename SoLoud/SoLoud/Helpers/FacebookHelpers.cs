@@ -9,16 +9,30 @@ using System.Web;
 
 namespace Facebook
 {
-    public enum Reaction
+    public enum ReactionType
     {
         LIKE, LOVE, HAHA, WOW, SAD, ANGRY
     }
+    public enum Order
+    {
+        ranked, chronological
+    }
 
-    public class ReactionPerPerson
+    public class Influencee
     {
         public string id { get; set; }
         public string name { get; set; }
-        public Reaction type { get; set; }
+    }
+    public class Reaction : Influencee
+    {
+        public ReactionType type { get; set; }
+    }
+    public class Comment
+    {
+        public string id { get; set; }
+        public DateTimeOffset created_time { get; set; }
+        public Influencee from { get; set; }
+        public string message { get; set; }
     }
     public class ResponsePaging
     {
@@ -34,19 +48,39 @@ namespace Facebook
     public class Summary
     {
         public int total_count { get; set; }
+    }
+    public class ReactionSummary : Summary
+    {
         public string viewer_reaction { get; set; }
+    }
+    public class CommentSummary :Summary
+    {
+        public Order order { get; set; }
+        public bool can_comment { get; set; }
     }
     public class PostReactions
     {
-        public List<ReactionPerPerson> data { get; set; }
+        public List<Reaction> data { get; set; }
         public ResponsePaging paging { get; set; }
-        public Summary summary { get; set; }
+        public ReactionSummary summary { get; set; }
+
+    }
+    public class PostComments
+    {
+        public List<Comment> data { get; set; }
+        public ResponsePaging paging { get; set; }
+        public CommentSummary summary { get; set; }
 
     }
     public class FacebookPhotoResponse
     {
         public string id { get; set; }
         public string post_id { get; set; }
+    }
+
+    public class FacebookPostRespnse {
+        public string id { get; set; }
+        public bool post_supports_client_mutation_id { get; set; }
     }
 
     public class Me
@@ -141,7 +175,7 @@ namespace Facebook
             return PhotoResponses;
         }
 
-        public async Task MultiphotoStory(List<SoLoud.Models.File> images, string Message)
+        public async Task<FacebookPostRespnse> MultiphotoStory(List<SoLoud.Models.File> images, string Message)
         {
             FacebookPhotoResponse[] PhotoResponses = await UploadUserPhotos(images, false);
 
@@ -154,7 +188,31 @@ namespace Facebook
                 if (!String.IsNullOrWhiteSpace(PhotoResponses[i].id))
                     req.AddParameter("attached_media[" + i.ToString() + "]", String.Format("{{ \"media_fbid\":\"{0}\"}}", PhotoResponses[i].id));
 
-            Execute(req);
+            var resp = Execute<FacebookPostRespnse>(req);
+            return resp;
+        }
+
+        public PostReactions GetReactions(Post post)
+        {
+            var req = new RestRequest(post.FacebookId + "/reactions", Method.GET);
+
+            req.AddParameter("summary", true);
+            req.AddParameter("access_token", AccessToken);
+
+            var resp = Execute<PostReactions>(req);
+            return resp;
+        }
+
+        public PostComments GetComments(Post post)
+        {
+            var req = new RestRequest(post.FacebookId + "/reactions", Method.GET);
+
+            req.AddParameter("summary", true);
+            req.AddParameter("filter", "stream");
+            req.AddParameter("access_token", AccessToken);
+            
+            var resp = Execute<PostComments>(req);
+            return resp;
         }
     }
 }

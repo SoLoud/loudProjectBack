@@ -105,7 +105,7 @@ namespace SoLoud
 
             if (externalIdentity != null && externalIdentity.Claims != null)
             {
-                var claim = externalIdentity.Claims.FirstOrDefault(x => x.Type == "FacebookAccessToken");
+                var claim = externalIdentity.Claims.FirstOrDefault(x => x.Type == SoloudClaimTypes.FacebookAccessToken.ToString());
                 if (claim != null)
                     localIdentity.AddClaim(new Claim(claim.Type, claim.Value));
             }

@@ -29,6 +29,8 @@ namespace SoLoud.Models
             this.CreatedAt = DateTimeOffset.Now;
         }
 
+        [MaxLength(255)]
+        [Required]
         public string Title { get; set; }
         public string Description { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
@@ -36,7 +38,7 @@ namespace SoLoud.Models
         public Categoies Category { get; set; }
         public string RequiredHashTags { get; set; }
         public string OptionalHashTags { get; set; }
-        public List<File> ProductPhotos { get; set; }
-        public List<File> ExamplePhotos { get; set; }
+        public virtual List<File> ProductPhotos { get; set; }
+        public virtual List<File> ExamplePhotos { get; set; }
     }
 }

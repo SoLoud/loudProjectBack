@@ -13,6 +13,10 @@ using Newtonsoft.Json;
 using SoLoud.Models;
 using SoLoud.Controllers;
 using System.Linq;
+using System.Data.Entity;
+using ContactHub.Helpers;
+using System.Configuration;
+using Microsoft.AspNet.Identity.EntityFramework;
 
 namespace SoLoud.Providers
 {
@@ -218,15 +222,29 @@ namespace SoLoud.Providers
                 User = await AccCtrl.CreateUser("User", me.email, me.email, null);
             }
 
+            //Save fbtoken to db
+            var db = new SoLoudContext();
+            //We need to refetch from db in order to be able to edit/add claims. If we dont the context is not tracking the Claim entities and changes will not save
+            User = db.Users.Include("Claims").FirstOrDefault(x => x.Id == User.Id);
+            var fbTokenClaim = User.Claims.FirstOrDefault(x => x.ClaimType == SoloudClaimTypes.FacebookAccessToken.ToString());
+            if(fbTokenClaim == null)
+            {
+                fbTokenClaim = new Microsoft.AspNet.Identity.EntityFramework.IdentityUserClaim() {
+                    ClaimType = SoloudClaimTypes.FacebookAccessToken.ToString()
+                };
+                User.Claims.Add(fbTokenClaim);
+            }
+            fbTokenClaim.ClaimValue = AESThenHMAC.SimpleEncryptWithPassword(facebookToken, ConfigurationManager.AppSettings["EncryptionKey"].ToString());
+            db.SaveChanges();
+
             //Create Token and return
             var identity = new ClaimsIdentity(context.Options.AuthenticationType);
             identity.AddClaim(new Claim("UserName", User.UserName));
             identity.AddClaim(new Claim("UserId", User.Id));
-            identity.AddClaim(new Claim("FacebookAccessToken", facebookToken));
+            identity.AddClaim(new Claim(SoloudClaimTypes.FacebookAccessToken.ToString(), facebookToken));
 
             //find user roles
-            var LoudContext = new SoLoudContext();
-            var UserRoles = User.Roles.Join(LoudContext.Roles, x => x.RoleId, r => r.Id, (x, r) => r.Name);
+            var UserRoles = User.Roles.Join(db.Roles, x => x.RoleId, r => r.Id, (x, r) => r.Name);
             if (UserRoles != null && UserRoles.Count() > 0)
                 identity.AddClaim(new Claim("Roles", UserRoles.Aggregate((acc, cur) => acc += "," + cur)));
 
